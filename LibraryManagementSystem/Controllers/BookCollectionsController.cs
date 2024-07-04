@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -9,7 +10,7 @@ namespace LibraryManagementSystem.Controllers
     public class BookCollectionsController : ControllerBase
     {
         #region Read one collection or all
-        [HttpGet]
+        [HttpGet(Name = "ReadAllCollections")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<BookCollection>> ReadAllBookCollections()
         {
@@ -35,7 +36,7 @@ namespace LibraryManagementSystem.Controllers
         }
         #endregion
         #region Create collection
-        [HttpPost]
+        [HttpPost(Name = "CreateBookCollection")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -56,7 +57,8 @@ namespace LibraryManagementSystem.Controllers
             }
             createdCollection.Id = LocalLibrary.Collections.OrderByDescending(collection => collection.Id).FirstOrDefault().Id + 1;
             LocalLibrary.Collections.Add(createdCollection);
-            return CreatedAtRoute("", new { id = createdCollection.Id }, createdCollection);
+
+            return CreatedAtRoute("ReadCollection", new { id = createdCollection.Id }, createdCollection);
         }
         #endregion
         #region Delete collection
@@ -80,23 +82,59 @@ namespace LibraryManagementSystem.Controllers
         }
         #endregion
         #region Update collection
-        [HttpPut("{id:int}", Name = "UpdateBookCollection")]
+        [HttpPatch("{id:int}/books/assign", Name = "AssignBookToCollection")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult UpdateBook(int id, [FromBody] BookCollection collectionToUpdate)
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public IActionResult AssignBookToCollection(int id, int bookId)
         {
-            if (collectionToUpdate == null || id != collectionToUpdate.Id)
+            if(id <= 0 || bookId <= 0)
             {
                 return BadRequest();
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(book => book.Id == id);
+            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
             if (collection == null)
             {
                 return NotFound();
             }
-            collection.Name = collectionToUpdate.Name;
-            collection.Books = collectionToUpdate.Books;
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == bookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            if(book.IsAssigned)
+            {
+                return Conflict();
+            }
+            collection.Books.Add(book);
+            book.IsAssigned = true;
+
+            return NoContent();
+        }
+        [HttpPatch("{id:int}/books/remove", Name = "RemoveBookFromCollection")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public IActionResult RemoveBookFromCollection(int id, int bookId)
+        {
+            if (id <= 0 || bookId <= 0)
+            {
+                return BadRequest();
+            }
+            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
+            if (collection == null)
+            {
+                return NotFound();
+            }
+            var book = collection.Books.FirstOrDefault(b => b.Id == bookId);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            collection.Books.Remove(book);
+            book.IsAssigned = false;
 
             return NoContent();
         }

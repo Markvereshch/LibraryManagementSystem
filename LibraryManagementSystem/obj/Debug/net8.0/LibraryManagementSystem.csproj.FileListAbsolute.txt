@@ -30,3 +30,8 @@ D:\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\ref
 D:\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.pdb
 D:\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.genruntimeconfig.cache
 D:\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\ref\LibraryManagementSystem.dll
+D:\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\net8.0\LibraryManagementSystem.sourcelink.json
+D:\Projects\LibraryManagementSystem\LibraryManagementSystem\bin\Debug\net8.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\Projects\LibraryManagementSystem\LibraryManagementSystem\bin\Debug\net8.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\Projects\LibraryManagementSystem\LibraryManagementSystem\bin\Debug\net8.0\Newtonsoft.Json.dll
+D:\Projects\LibraryManagementSystem\LibraryManagementSystem\bin\Debug\net8.0\Newtonsoft.Json.Bson.dll

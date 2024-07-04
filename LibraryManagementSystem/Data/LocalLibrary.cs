@@ -26,7 +26,8 @@ namespace LibraryManagementSystem.Data
                 Genre = "Adventure",
                 Title = "Kochanek Wielkiej Niedzwiedzicy",
                 Year = 1937,
-                Status = 1
+                Status = 1,
+                IsAssigned = true
             };
             var b2 = new Book
             {
@@ -35,16 +36,17 @@ namespace LibraryManagementSystem.Data
                 Genre = "Adventure",
                 Title = "Dobry wojak Szwejk",
                 Year = 1921,
-                Status = 0
+                Status = 0,
+                IsAssigned = true
             };
             var b3 = new Book
             {
                 Id = 3,
-                Author = "AA",
-                Genre = "BB",
-                Title = "SomeTitle",
-                Year = 1921,
-                Status = 2
+                Title = "1984",
+                Author = "George Orwell",
+                Genre = "Dystopian",
+                Year = 1949,
+                IsAssigned = false
             };
             books = new List<Book>() { b1, b2, b3 };
 
@@ -56,7 +58,7 @@ namespace LibraryManagementSystem.Data
                 Name = "My collection",
                 Books = new List<Book>()
                 {
-                    b1, b2, b3
+                    b1, b2
                 }
             };
             collections.Add(testCollection);

@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,20 +11,35 @@ namespace LibraryManagementSystem.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        #region Read one book/all books
-        [HttpGet]
+        #region Read book/books/status
+        [HttpGet(Name = "ReadAllBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Book>> ReadAllBooks([FromQuery]int? year)
+        public ActionResult<IEnumerable<Book>> ReadAllBooks([FromQuery(Name = "nameFilter")] int? year,
+                                                            [FromQuery(Name = "titleFilter")] string? title,
+                                                            [FromQuery(Name = "authorFilter")] string? author,
+                                                            [FromQuery(Name = "genreFilter")] string? genre,
+                                                            [FromQuery(Name = "bookStatusFilter")] BookStatus? status)
         {
-            // return Ok(LocalLibrary.Books);
-            IEnumerable<Book> books;
+            IEnumerable<Book> books = LocalLibrary.Books;
             if(year >= 0)
             {
                 books = LocalLibrary.Books.Where(b => b.Year == year);
             }
-            else
+            if(title != null) 
             {
-                books = LocalLibrary.Books;
+                books = books.Where(b => b.Title.ToLower() == title.ToLower());
+            }
+            if (author != null)
+            {
+                books = books.Where(b => b.Author.ToLower() == author.ToLower());
+            }
+            if (genre != null)
+            {
+                books = books.Where(b => b.Genre.ToLower() == genre.ToLower());
+            }
+            if (status != null)
+            {
+                books = books.Where(b => (BookStatus)b.Status == status);
             }
             return Ok(books);
         }
@@ -44,21 +60,33 @@ namespace LibraryManagementSystem.Controllers
             }
             return Ok(book);
         }
+
+        [HttpGet("{id:int}/status", Name = "ReadBookStatus")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<bool> IsBorrowed(int id)
+        {
+            if(id <= 0)
+            {
+                return BadRequest();
+            }
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
+            if(book == null)
+            {
+                return NotFound();
+            }
+
+            return (BookStatus)book.Status == BookStatus.Borrowed;
+        }
         #endregion
         #region Create book
-        [HttpPost]
+        [HttpPost(Name = "CreateBook")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<Book> CreateBook([FromBody] Book createdBook)
         {
-            if (LocalLibrary.Books.FirstOrDefault(book => createdBook.Title.ToLower() == book.Title.ToLower()
-                                                     && createdBook.Author.ToLower() == book.Author.ToLower()
-                                                     && createdBook.Year == book.Year) != null)
-            {
-                ModelState.AddModelError("BookExistsError", "Such a book already in the library");
-                return BadRequest();
-            }
             if (createdBook == null)
             {
                 return BadRequest(createdBook);
@@ -69,7 +97,8 @@ namespace LibraryManagementSystem.Controllers
             }
             createdBook.Id = LocalLibrary.Books.OrderByDescending(book => book.Id).FirstOrDefault().Id + 1;
             LocalLibrary.Books.Add(createdBook);
-            return CreatedAtRoute("", new { id = createdBook.Id }, createdBook);
+
+            return CreatedAtRoute("ReadBook", new { id = createdBook.Id }, createdBook);
         }
         #endregion
         #region Delete book
@@ -90,6 +119,7 @@ namespace LibraryManagementSystem.Controllers
             }
             DeleteBookFromCollections(book);
             LocalLibrary.Books.Remove(book);
+
             return NoContent();
         }
         private void DeleteBookFromCollections(Book book)
@@ -122,9 +152,33 @@ namespace LibraryManagementSystem.Controllers
             book.Year = bookToUpdate.Year;
             book.Genre = bookToUpdate.Genre;
             book.Status = bookToUpdate.Status;
+        
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}/status", Name="UpdateBookStatus")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdateBookStatus(int id, [FromBody] BookStatus? status)
+        {
+            if (id <= 0 || status == null)
+            {
+                return BadRequest();
+            }
+            var book = LocalLibrary.Books.FirstOrDefault(book => book.Id == id);
+            if(book == null)
+            {
+                return BadRequest();
+            }
+            if(!Enum.IsDefined(typeof(BookStatus), status))
+            {
+                return BadRequest();
+            }
+            book.Status = (int)status;
 
             return NoContent();
         }
         #endregion
     }
 }
+ 
