@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Data;
+using LibraryManagementSystem.ModelBinders;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -85,7 +86,7 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<Book> CreateBook([FromBody] Book createdBook)
+        public ActionResult<Book> CreateBook(Book createdBook)
         {
             if (createdBook == null)
             {
@@ -96,10 +97,13 @@ namespace LibraryManagementSystem.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
             createdBook.Id = LocalLibrary.Books.OrderByDescending(book => book.Id).FirstOrDefault().Id + 1;
+            createdBook.IsAssigned = false;
+
             LocalLibrary.Books.Add(createdBook);
 
             return CreatedAtRoute("ReadBook", new { id = createdBook.Id }, createdBook);
         }
+        
         #endregion
         #region Delete book
         [HttpDelete("{id:int}", Name = "DeleteBook")]

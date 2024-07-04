@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "D:\\Projects\\LibraryManagementSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\controllers\\bookcollectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\controllers\\bookcollectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\middleware\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\middleware\\exceptionhandlingmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\models\\book.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\models\\book.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\modelbinders\\bookmodelbinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\modelbinders\\bookmodelbinder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\modelbinders\\bookmodelbinderprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\modelbinders\\bookmodelbinderprovider.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\data\\bookstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\data\\bookstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\controllers\\bookscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -26,58 +34,84 @@
       "DocumentGroups": [
         {
           "DockedWidth": 318,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ExceptionHandlingMiddleware.cs",
-              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Middleware\\ExceptionHandlingMiddleware.cs",
-              "RelativeDocumentMoniker": "LibraryManagementSystem\\Middleware\\ExceptionHandlingMiddleware.cs",
-              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Middleware\\ExceptionHandlingMiddleware.cs",
-              "RelativeToolTip": "LibraryManagementSystem\\Middleware\\ExceptionHandlingMiddleware.cs",
-              "ViewState": "AQIAAA8AAAAAAAAAAAAYwBwAAAA4AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-04T10:34:26.884Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Program.cs",
-              "RelativeDocumentMoniker": "LibraryManagementSystem\\Program.cs",
-              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Program.cs",
-              "RelativeToolTip": "LibraryManagementSystem\\Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAxAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-04T10:13:44.177Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "BookCollectionsController.cs",
-              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "RelativeDocumentMoniker": "LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "RelativeToolTip": "LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAAwBkAAAANAAAA",
+              "Title": "Book.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Models\\Book.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\Models\\Book.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Models\\Book.cs",
+              "RelativeToolTip": "LibraryManagementSystem\\Models\\Book.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAAUAAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-03T13:17:44.667Z",
+              "WhenOpened": "2024-07-04T13:57:34.513Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "BooksController.cs",
               "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs",
               "RelativeDocumentMoniker": "LibraryManagementSystem\\Controllers\\BooksController.cs",
               "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs",
               "RelativeToolTip": "LibraryManagementSystem\\Controllers\\BooksController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAALUAAAAAAAAA",
+              "ViewState": "AQIAAAoAAAAAAAAAAAAAAFgAAAAtAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-03T08:04:47.892Z",
+              "WhenOpened": "2024-07-04T13:28:26.343Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BookStatus.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Data\\BookStatus.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\Data\\BookStatus.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Data\\BookStatus.cs",
+              "RelativeToolTip": "LibraryManagementSystem\\Data\\BookStatus.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-04T13:23:59.303Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BookModelBinderProvider.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\ModelBinders\\BookModelBinderProvider.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\ModelBinders\\BookModelBinderProvider.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\ModelBinders\\BookModelBinderProvider.cs",
+              "RelativeToolTip": "LibraryManagementSystem\\ModelBinders\\BookModelBinderProvider.cs",
+              "ViewState": "AQIAAAQAAAAAAAAAAAAAwAUAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-04T13:16:20.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BookModelBinder.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\ModelBinders\\BookModelBinder.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\ModelBinders\\BookModelBinder.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\ModelBinders\\BookModelBinder.cs",
+              "RelativeToolTip": "LibraryManagementSystem\\ModelBinders\\BookModelBinder.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAADAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-04T12:33:58.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Program.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\Program.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Program.cs",
+              "RelativeToolTip": "LibraryManagementSystem\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-04T10:13:44.177Z",
               "EditorCaption": ""
             }
           ]
