@@ -1,7 +1,6 @@
 ﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.CompilerServices;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -76,6 +75,10 @@ namespace LibraryManagementSystem.Controllers
             if (collection == null)
             {
                 return NotFound();
+            }
+            foreach (var book in collection.Books)
+            {
+                book.IsAssigned = false;
             }
             LocalLibrary.Collections.Remove(collection);
             return NoContent();
