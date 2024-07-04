@@ -9,6 +9,7 @@ namespace LibraryManagementSystem.Controllers
     public class BookCollectionsController : ControllerBase
     {
         #region Read one collection or all
+        //GET method, which retrieves all collections
         [HttpGet(Name = "ReadAllCollections")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<BookCollection>> ReadAllBookCollections()
@@ -16,6 +17,7 @@ namespace LibraryManagementSystem.Controllers
             return Ok(LocalLibrary.Collections);
         }
 
+        //GET method, which retrieves the collection with the specified ID
         [HttpGet("{id:int}", Name = "ReadCollection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -35,6 +37,7 @@ namespace LibraryManagementSystem.Controllers
         }
         #endregion
         #region Create collection
+        //POST method, which creates the book collection
         [HttpPost(Name = "CreateBookCollection")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +64,7 @@ namespace LibraryManagementSystem.Controllers
         }
         #endregion
         #region Delete collection
+        //DELETE method, which deletes the collection with the specified ID
         [HttpDelete("{id:int}", Name = "DeleteBookCollection")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -78,13 +82,14 @@ namespace LibraryManagementSystem.Controllers
             }
             foreach (var book in collection.Books)
             {
-                book.IsAssigned = false;
+                book.CollectionId = 0;
             }
             LocalLibrary.Collections.Remove(collection);
             return NoContent();
         }
         #endregion
         #region Update collection
+        //PATCH method, which assigns the book with the specified bookId to the collection with the specified id
         [HttpPatch("{id:int}/books/assign", Name = "AssignBookToCollection")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -106,15 +111,17 @@ namespace LibraryManagementSystem.Controllers
             {
                 return NotFound($"Book with bookId={bookId} doesn't exist");
             }
-            if(book.IsAssigned)
+            if(book.CollectionId != 0)
             {
-                return Conflict($"Book with id={bookId} is assigned to some collection");
+                return Conflict($"Book with id={bookId} is assigned to the collection with id={book.CollectionId}");
             }
             collection.Books.Add(book);
-            book.IsAssigned = true;
+            book.CollectionId = collection.Id;
 
             return NoContent();
         }
+
+        //PATCH method, which removes the book with the specified bookId from the collection with the specified id 
         [HttpPatch("{id:int}/books/remove", Name = "RemoveBookFromCollection")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -137,7 +144,7 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound($"Book with bookId={bookId} is not assigned to collection with id={id}");
             }
             collection.Books.Remove(book);
-            book.IsAssigned = false;
+            book.CollectionId = 0;
 
             return NoContent();
         }

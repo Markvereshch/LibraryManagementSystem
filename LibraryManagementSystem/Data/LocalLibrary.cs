@@ -28,7 +28,7 @@ namespace LibraryManagementSystem.Data
         }
         static LocalLibrary()
         {
-            //creating test _books
+            //creating test books
             var b1 = new Book
             {
                 Id = BooksId,
@@ -37,7 +37,7 @@ namespace LibraryManagementSystem.Data
                 Title = "Kochanek Wielkiej Niedzwiedzicy",
                 Year = 1937,
                 Status = 1,
-                IsAssigned = true
+                CollectionId = 1
             };
             var b2 = new Book
             {
@@ -47,7 +47,7 @@ namespace LibraryManagementSystem.Data
                 Title = "Dobry wojak Szwejk",
                 Year = 1921,
                 Status = 0,
-                IsAssigned = true
+                CollectionId = 1
             };
             var b3 = new Book
             {
@@ -56,11 +56,11 @@ namespace LibraryManagementSystem.Data
                 Author = "George Orwell",
                 Genre = "Dystopian",
                 Year = 1949,
-                IsAssigned = false
+                CollectionId = 0
             };
             _books = new List<Book>() { b1, b2, b3 };
 
-            //creating test collection
+            //creating a test collection
             _collections = new List<BookCollection>();
             var testCollection = new BookCollection()
             {

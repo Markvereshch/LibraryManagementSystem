@@ -38,7 +38,8 @@ namespace LibraryManagementSystem.Models
         #endregion
         #region CollecitonId
         [Required(ErrorMessage = "Book must be either in a collection or not")]
-        public bool IsAssigned { get; set; }
+        [Range(0, int.MaxValue, ErrorMessage = "CollectionId must be greater or equal to 0")]
+        public int CollectionId { get; set; }
         #endregion
     }
 }

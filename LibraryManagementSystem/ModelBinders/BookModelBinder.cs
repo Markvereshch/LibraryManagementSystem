@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LibraryManagementSystem.ModelBinders
 {
+    //Binder, which creates a new book object from a Url
     public class BookModelBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext context)
@@ -20,7 +21,7 @@ namespace LibraryManagementSystem.ModelBinders
             var genreValue = context.ValueProvider.GetValue("genre").FirstValue;
             var yearValue = context.ValueProvider.GetValue("year").FirstValue;
             var statusValue = context.ValueProvider.GetValue("status").FirstValue;
-            var isAssignedValue = context.ValueProvider.GetValue("isAssigned").FirstValue;
+            var collectionIdValue = context.ValueProvider.GetValue("collectionId").FirstValue;
 
             if (string.IsNullOrEmpty(idValue) ||
                 string.IsNullOrEmpty(titleValue) ||
@@ -28,7 +29,7 @@ namespace LibraryManagementSystem.ModelBinders
                 string.IsNullOrEmpty(genreValue) ||
                 string.IsNullOrEmpty(yearValue) ||
                 string.IsNullOrEmpty(statusValue) ||
-                string.IsNullOrEmpty(isAssignedValue))
+                string.IsNullOrEmpty(collectionIdValue))
             {
                 context.ModelState.AddModelError("", "Some value is not valid");
                 return Task.CompletedTask;
@@ -37,7 +38,7 @@ namespace LibraryManagementSystem.ModelBinders
             if (!Int32.TryParse(yearValue, out int year) ||
                 !Int32.TryParse(idValue, out int id) ||
                 !Int32.TryParse(statusValue, out int status) || !Enum.IsDefined(typeof(BookStatus), status) ||
-                !Boolean.TryParse(isAssignedValue, out bool isAssigned))
+                !Int32.TryParse(collectionIdValue, out int collectionId))
             {
                 context.ModelState.AddModelError("", "Year, id, isAssigned or status is not valid");
                 return Task.CompletedTask;
@@ -51,7 +52,7 @@ namespace LibraryManagementSystem.ModelBinders
                 Genre = genreValue,
                 Year = year,
                 Status = status,
-                IsAssigned = isAssigned
+                CollectionId = collectionId
             };
 
             context.Result = ModelBindingResult.Success(result);
