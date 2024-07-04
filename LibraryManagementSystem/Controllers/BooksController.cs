@@ -2,9 +2,7 @@
 using LibraryManagementSystem.ModelBinders;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System.Net.WebSockets;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -28,15 +26,15 @@ namespace LibraryManagementSystem.Controllers
             }
             if(title != null) 
             {
-                books = books.Where(b => b.Title.ToLower() == title.ToLower());
+                books = books.Where(b => b.Title.ToLower().Contains(title.ToLower()));
             }
             if (author != null)
             {
-                books = books.Where(b => b.Author.ToLower() == author.ToLower());
+                books = books.Where(b => b.Author.ToLower().Contains(author.ToLower()));
             }
             if (genre != null)
             {
-                books = books.Where(b => b.Genre.ToLower() == genre.ToLower());
+                books = books.Where(b => b.Genre.ToLower().Contains(genre.ToLower()));
             }
             if (status != null)
             {
@@ -52,16 +50,33 @@ namespace LibraryManagementSystem.Controllers
         {
             if(id <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid book Id (id={id})");
             }
-            var book = LocalLibrary.Books.FirstOrDefault(book => book.Id == id);
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
             if(book == null)
             {
-                return NotFound();
+                return NotFound($"Book with id={id} doesn't exist");
             }
             return Ok(book);
         }
-
+        [HttpGet("findCopy", Name = "ReadFirstCopyWithQuery")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<Book> ReadFirstCopyWithQuery([ModelBinder(BinderType = typeof(BookModelBinder))] Book book)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest($"Invalid book format");
+            }
+            var books = LocalLibrary.Books;
+            var copy = books.FirstOrDefault(c => c.Author.ToLower() == book.Author.ToLower() && c.Title.ToLower() == book.Title.ToLower());
+            if(copy == null)
+            {
+                return NotFound($"There is no copy of provided book");
+            }
+            return Ok(copy);
+        }
         [HttpGet("{id:int}/status", Name = "ReadBookStatus")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -70,12 +85,12 @@ namespace LibraryManagementSystem.Controllers
         {
             if(id <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid book Id (id={id})");
             }
             var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
             if(book == null)
             {
-                return NotFound();
+                return NotFound($"Book with id={id} doesn't exist");
             }
 
             return (BookStatus)book.Status == BookStatus.Borrowed;
@@ -86,7 +101,7 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<Book> CreateBook(Book createdBook)
+        public ActionResult<Book> CreateBook([FromBody] Book createdBook)
         {
             if (createdBook == null)
             {
@@ -96,14 +111,13 @@ namespace LibraryManagementSystem.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            createdBook.Id = LocalLibrary.Books.OrderByDescending(book => book.Id).FirstOrDefault().Id + 1;
+            createdBook.Id = LocalLibrary.BooksId;
             createdBook.IsAssigned = false;
 
             LocalLibrary.Books.Add(createdBook);
 
             return CreatedAtRoute("ReadBook", new { id = createdBook.Id }, createdBook);
         }
-        
         #endregion
         #region Delete book
         [HttpDelete("{id:int}", Name = "DeleteBook")]
@@ -114,12 +128,12 @@ namespace LibraryManagementSystem.Controllers
         {
             if(id <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid book Id (id={id})");
             }
-            var book = LocalLibrary.Books.FirstOrDefault(book => book.Id == id);
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
             if (book == null)
             {
-                return NotFound();
+                return NotFound($"Book with id={id} doesn't exist");
             }
             DeleteBookFromCollections(book);
             LocalLibrary.Books.Remove(book);
@@ -144,12 +158,12 @@ namespace LibraryManagementSystem.Controllers
         {
             if(bookToUpdate == null || id != bookToUpdate.Id)
             {
-                return BadRequest();
+                return BadRequest($"Updated book doesn't exist or its id is not valid");
             }
-            var book = LocalLibrary.Books.FirstOrDefault(book => book.Id == id);
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
             if(book == null)
             {
-                return NotFound();
+                return NotFound($"Book with id={id} doesn't exist");
             }
             book.Title = bookToUpdate.Title;
             book.Author = bookToUpdate.Author;
@@ -167,16 +181,16 @@ namespace LibraryManagementSystem.Controllers
         {
             if (id <= 0 || status == null)
             {
-                return BadRequest();
+                return BadRequest("Invalid id or status");
             }
-            var book = LocalLibrary.Books.FirstOrDefault(book => book.Id == id);
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
             if(book == null)
             {
-                return BadRequest();
+                return BadRequest($"Book with id={id} doesn't exist");
             }
             if(!Enum.IsDefined(typeof(BookStatus), status))
             {
-                return BadRequest();
+                return BadRequest($"Status={status} is not a valid book status");
             }
             book.Status = (int)status;
 

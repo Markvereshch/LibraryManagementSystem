@@ -24,12 +24,12 @@ namespace LibraryManagementSystem.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid Id (id = {id}");
             }
             var collection = LocalLibrary.Collections.FirstOrDefault(bc => bc.Id == id);
             if (collection == null)
             {
-                return NotFound();
+                return NotFound($"There is no collection with ID={id}");
             }
             return Ok(collection);
         }
@@ -41,9 +41,9 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<BookCollection> CreateBookCollection([FromBody] BookCollection createdCollection)
         {
-            if (LocalLibrary.Collections.FirstOrDefault(collection => createdCollection.Name == collection.Name) != null)
+            if (LocalLibrary.Collections.FirstOrDefault(c => createdCollection.Name == c.Name) != null)
             {
-                ModelState.AddModelError("CollectionExistsError", "Such a collection collection already in the library");
+                ModelState.AddModelError("CollectionExistsError", "Such a collection already in the library");
                 return BadRequest();
             }
             if (createdCollection == null)
@@ -54,7 +54,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            createdCollection.Id = LocalLibrary.Collections.OrderByDescending(collection => collection.Id).FirstOrDefault().Id + 1;
+            createdCollection.Id = LocalLibrary.CollectionsId;
             LocalLibrary.Collections.Add(createdCollection);
 
             return CreatedAtRoute("ReadCollection", new { id = createdCollection.Id }, createdCollection);
@@ -69,12 +69,12 @@ namespace LibraryManagementSystem.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid ID (id = {id})");
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(collection => collection.Id == id);
+            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
             if (collection == null)
             {
-                return NotFound();
+                return NotFound($"Collection with ID={id} cannot be found");
             }
             foreach (var book in collection.Books)
             {
@@ -94,21 +94,21 @@ namespace LibraryManagementSystem.Controllers
         {
             if(id <= 0 || bookId <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid id or bookId (id={id}, bookId={id})");
             }
             var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
             if (collection == null)
             {
-                return NotFound();
+                return NotFound($"Collection with id={id} doesn't exist");
             }
             var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == bookId);
             if (book == null)
             {
-                return NotFound();
+                return NotFound($"Book with bookId={bookId} doesn't exist");
             }
             if(book.IsAssigned)
             {
-                return Conflict();
+                return Conflict($"Book with id={bookId} is assigned to some collection");
             }
             collection.Books.Add(book);
             book.IsAssigned = true;
@@ -124,17 +124,17 @@ namespace LibraryManagementSystem.Controllers
         {
             if (id <= 0 || bookId <= 0)
             {
-                return BadRequest();
+                return BadRequest($"Invalid id or bookId (id={id}, bookId={id})");
             }
             var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
             if (collection == null)
             {
-                return NotFound();
+                return NotFound($"Collection with id={id} doesn't exist");
             }
             var book = collection.Books.FirstOrDefault(b => b.Id == bookId);
             if (book == null)
             {
-                return NotFound();
+                return NotFound($"Book with bookId={bookId} is not assigned to collection with id={id}");
             }
             collection.Books.Remove(book);
             book.IsAssigned = false;

@@ -36,7 +36,7 @@ namespace LibraryManagementSystem.Models
         [Range(0, 2, ErrorMessage = "Correct statuses: 'Available' = 0, 'Borrowed' = 1, 'Lost' = 2")]
         public int Status { get; set; }
         #endregion
-        #region IsAssigned
+        #region CollecitonId
         [Required(ErrorMessage = "Book must be either in a collection or not")]
         public bool IsAssigned { get; set; }
         #endregion
