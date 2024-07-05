@@ -55,15 +55,13 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<Book> ReadBook(int id)
         {
-            if (id <= 0)
+            var result = ValidateBook(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid book ID (id={id})");
+                return result.Result;
             }
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
-            if (book == null)
-            {
-                return NotFound($"Book with ID={id} doesn't exist");
-            }
+            var book = result.Value;
+
             return Ok(book);
         }
 
@@ -95,15 +93,12 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<bool> IsBorrowed(int id)
         {
-            if (id <= 0)
+            var result = ValidateBook(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid book ID (id={id})");
+                return result.Result;
             }
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
-            if (book == null)
-            {
-                return NotFound($"Book with ID={id} doesn't exist");
-            }
+            var book = result.Value;
             return book.Status == BookStatus.Borrowed;
         }
 
@@ -136,15 +131,12 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteBook(int id)
         {
-            if (id <= 0)
+            var result = ValidateBook(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid book ID (id={id})");
+                return result.Result;
             }
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
-            if (book == null)
-            {
-                return NotFound($"Book with ID={id} doesn't exist");
-            }
+            var book = result.Value;
             DeleteBookFromCollections(book);
             LocalLibrary.Books.Remove(book);
 
@@ -168,15 +160,17 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateBook(int id, [FromBody] Book bookToUpdate)
         {
-            if (bookToUpdate == null || id != bookToUpdate.Id)
+            var result = ValidateBook(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Updated book doesn't exist or its ID is not valid");
+                return result.Result;
             }
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
-            if (book == null)
+            if (bookToUpdate == null)
             {
-                return NotFound($"Book with ID={id} doesn't exist");
+                return BadRequest($"Invalid update book format.");
             }
+            var book = result.Value;
+
             book.Title = bookToUpdate.Title;
             book.Author = bookToUpdate.Author;
             book.Year = bookToUpdate.Year;
@@ -193,15 +187,16 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateBookStatus(int id, [FromBody] BookStatus? status)
         {
-            if (id <= 0 || status == null)
+            var result = ValidateBook(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid ID or status (id={id}, status={status})");
+                return result.Result;
             }
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
-            if (book == null)
+            if(status == null)
             {
-                return NotFound($"Book with ID={id} doesn't exist");
+                return BadRequest($"Invalid status (status={status})");
             }
+            var book = result.Value;
             if (!Enum.IsDefined(typeof(BookStatus), status))
             {
                 return BadRequest($"Status={status} is not a valid book status");
@@ -209,6 +204,21 @@ namespace LibraryManagementSystem.Controllers
             book.Status = (BookStatus)status;
 
             return NoContent();
+        }
+
+        //Private helper method to validate the book
+        private ActionResult<Book> ValidateBook(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest($"Invalid book ID (id={id})");
+            }
+            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == id);
+            if (book == null)
+            {
+                return NotFound($"Book with ID={id} doesn't exist");
+            }
+            return book;
         }
     }
 }

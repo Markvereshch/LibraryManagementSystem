@@ -1,6 +1,7 @@
 ﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -23,15 +24,13 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<BookCollection> ReadBookCollection(int id)
         {
-            if (id <= 0)
+            var result = ValidateCollection(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid collection ID (id={id})");
+                return result.Result;
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(bc => bc.Id == id);
-            if (collection == null)
-            {
-                return NotFound($"There is no collection with ID={id}");
-            }
+            var collection = result.Value;
+
             return Ok(collection);
         }
 
@@ -44,13 +43,11 @@ namespace LibraryManagementSystem.Controllers
         {
             if (createdCollection == null)
             {
-                ModelState.AddModelError("CollectionFormatError", "Invalid collection format");
-                return BadRequest(createdCollection);
+                return BadRequest("Invalid collection format");
             }
             if (LocalLibrary.Collections.Any(c => string.Equals(c.Name, createdCollection.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                ModelState.AddModelError("CollectionExistsError", "Such a collection already in the library");
-                return BadRequest();
+                return BadRequest("Such a collection already in the library");
             }
             if (createdCollection.Id > 0)
             {
@@ -69,15 +66,12 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteBookCollection(int id)
         {
-            if (id <= 0)
+            var result = ValidateCollection(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid collection ID (id={id})");
+                return result.Result;
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
-            if (collection == null)
-            {
-                return NotFound($"Collection with ID={id} cannot be found");
-            }
+            var collection = result.Value;
             foreach (var book in collection.Books)
             {
                 book.CollectionId = 0;
@@ -95,15 +89,17 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public IActionResult AssignBookToCollection(int id, int bookId)
         {
-            if (id <= 0 || bookId <= 0)
+            var result = ValidateCollection(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid collection ID or book ID (id={id}, bookId={bookId})");
+                return result.Result;
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
-            if (collection == null)
+            if (bookId <= 0)
             {
-                return NotFound($"Collection with ID={id} doesn't exist");
+                return BadRequest($"Invalid book ID (bookId={bookId})");
             }
+            var collection = result.Value;
+
             var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == bookId);
             if (book == null)
             {
@@ -127,15 +123,17 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public IActionResult RemoveBookFromCollection(int id, int bookId)
         {
-            if (id <= 0 || bookId <= 0)
+            var result = ValidateCollection(id);
+            if (result.Result != null)
             {
-                return BadRequest($"Invalid collection ID or book ID (id={id}, bookId={bookId})");
+                return result.Result;
             }
-            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
-            if (collection == null)
+            if (bookId <= 0)
             {
-                return NotFound($"Collection with ID={id} doesn't exist");
+                return BadRequest($"Invalid book ID (bookId={bookId})");
             }
+            var collection = result.Value;
+
             var book = collection.Books.FirstOrDefault(b => b.Id == bookId);
             if (book == null)
             {
@@ -145,6 +143,21 @@ namespace LibraryManagementSystem.Controllers
             book.CollectionId = 0;
 
             return NoContent();
+        }
+
+        //Private helper method to validate the collection
+        private ActionResult<BookCollection> ValidateCollection(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest($"Invalid collection ID (id={id})");
+            }
+            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
+            if (collection == null)
+            {
+                return NotFound($"Collection with ID={id} cannot be found");
+            }
+            return collection;
         }
     }
 }
