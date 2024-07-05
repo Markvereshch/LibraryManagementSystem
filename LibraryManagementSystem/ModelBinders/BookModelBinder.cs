@@ -14,7 +14,6 @@ namespace LibraryManagementSystem.ModelBinders
             {
                 throw new ArgumentNullException(nameof(context));
             }
-
             var idValue = context.ValueProvider.GetValue("id").FirstValue;
             var titleValue = context.ValueProvider.GetValue("title").FirstValue;
             var authorValue = context.ValueProvider.GetValue("author").FirstValue;
@@ -34,16 +33,14 @@ namespace LibraryManagementSystem.ModelBinders
                 context.ModelState.AddModelError("", "Some value is not valid");
                 return Task.CompletedTask;
             }
-
             if (!Int32.TryParse(yearValue, out int year) ||
                 !Int32.TryParse(idValue, out int id) ||
-                !Int32.TryParse(statusValue, out int status) || !Enum.IsDefined(typeof(BookStatus), status) ||
+                !Enum.TryParse<BookStatus>(statusValue, true, out var status) ||
                 !Int32.TryParse(collectionIdValue, out int collectionId))
             {
-                context.ModelState.AddModelError("", "Year, id, isAssigned or status is not valid");
+                context.ModelState.AddModelError("", "Year, id, collectionId or status is not valid");
                 return Task.CompletedTask;
             }
-
             var result = new Book
             {
                 Id = id,

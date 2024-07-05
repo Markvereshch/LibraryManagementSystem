@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace LibraryManagementSystem.Middleware
+﻿namespace LibraryManagementSystem.Middleware
 {
     public class ExceptionHandlingMiddleware
     {

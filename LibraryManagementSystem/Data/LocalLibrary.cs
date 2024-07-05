@@ -14,7 +14,7 @@ namespace LibraryManagementSystem.Data
         }
         public static int CollectionsId
         {
-            get => ++_collectionsId; 
+            get => ++_collectionsId;
         }
         public static List<Book> Books
         {
@@ -29,36 +29,37 @@ namespace LibraryManagementSystem.Data
         static LocalLibrary()
         {
             //creating test books
-            var b1 = new Book
+            var testBook1 = new Book
             {
                 Id = BooksId,
                 Author = "Sergiusz Piasecki",
                 Genre = "Adventure",
                 Title = "Kochanek Wielkiej Niedzwiedzicy",
                 Year = 1937,
-                Status = 1,
+                Status = BookStatus.Borrowed,
                 CollectionId = 1
             };
-            var b2 = new Book
+            var testBook2 = new Book
             {
                 Id = BooksId,
                 Author = "Jaroslaw Hasek",
                 Genre = "Adventure",
                 Title = "Dobry wojak Szwejk",
                 Year = 1921,
-                Status = 0,
+                Status = BookStatus.Available,
                 CollectionId = 1
             };
-            var b3 = new Book
+            var testBook3 = new Book
             {
                 Id = BooksId,
                 Title = "1984",
                 Author = "George Orwell",
                 Genre = "Dystopian",
                 Year = 1949,
+                Status = BookStatus.Available,
                 CollectionId = 0
             };
-            _books = new List<Book>() { b1, b2, b3 };
+            _books = new List<Book>() { testBook1, testBook2, testBook3 };
 
             //creating a test collection
             _collections = new List<BookCollection>();
@@ -68,7 +69,7 @@ namespace LibraryManagementSystem.Data
                 Name = "My collection",
                 Books = new List<Book>()
                 {
-                    b1, b2
+                    testBook1, testBook2
                 }
             };
             _collections.Add(testCollection);
