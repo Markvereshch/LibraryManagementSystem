@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Data;
 using LibraryManagementSystem.Models;
+using LMS_BusinessLogic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -9,14 +10,21 @@ namespace LibraryManagementSystem.Controllers
     [ApiController]
     public class BookCollectionsController : ControllerBase
     {
+        private readonly IBookCollectionService _bookCollection; 
+        public BookCollectionsController(IBookCollectionService bookCollection)
+        {
+            _bookCollection = bookCollection;
+        }
+
         //GET method, which retrieves all collections
         [HttpGet(Name = "ReadAllCollections")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<BookCollection>> ReadAllBookCollections()
+        public async Task<ActionResult<IEnumerable<BookCollection>>> ReadAllBookCollections()
         {
-            return Ok(LocalLibrary.Collections);
+            var collections = _bookCollection.GetAllCollectionsAsync();
+            return Ok(collections);
         }
-
+        /*
         //GET method, which retrieves the collection with the specified ID
         [HttpGet("{id:int}", Name = "ReadCollection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -159,5 +167,6 @@ namespace LibraryManagementSystem.Controllers
             }
             return collection;
         }
+        */
     }
 }

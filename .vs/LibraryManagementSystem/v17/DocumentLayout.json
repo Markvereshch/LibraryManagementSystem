@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "D:\\Projects\\LibraryManagementSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\controllers\\bookcollectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\controllers\\bookcollectionscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|d:\\projects\\librarymanagementsystem\\librarymanagementsystem\\controllers\\bookscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D884E440-5AA2-441E-A08D-966D6938E524}|LibraryManagementSystem\\LibraryManagementSystem.csproj|solutionrelative:librarymanagementsystem\\controllers\\bookscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5F278372-2945-489F-A53F-5F896613DFE8}|LMS_BusinessLogic\\LMS_BusinessLogic.csproj|d:\\projects\\librarymanagementsystem\\lms_businesslogic\\services\\bookservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5F278372-2945-489F-A53F-5F896613DFE8}|LMS_BusinessLogic\\LMS_BusinessLogic.csproj|solutionrelative:lms_businesslogic\\services\\bookservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5F278372-2945-489F-A53F-5F896613DFE8}|LMS_BusinessLogic\\LMS_BusinessLogic.csproj|d:\\projects\\librarymanagementsystem\\lms_businesslogic\\interfaces\\ibookservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5F278372-2945-489F-A53F-5F896613DFE8}|LMS_BusinessLogic\\LMS_BusinessLogic.csproj|solutionrelative:lms_businesslogic\\interfaces\\ibookservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA445AD6-B857-403E-95C1-F12DEC92E57C}|LMS_DataAccess\\LMS_DataAccess.csproj|d:\\projects\\librarymanagementsystem\\lms_dataaccess\\repositories\\bookrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA445AD6-B857-403E-95C1-F12DEC92E57C}|LMS_DataAccess\\LMS_DataAccess.csproj|solutionrelative:lms_dataaccess\\repositories\\bookrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AA445AD6-B857-403E-95C1-F12DEC92E57C}|LMS_DataAccess\\LMS_DataAccess.csproj|d:\\projects\\librarymanagementsystem\\lms_dataaccess\\interfaces\\ibookrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AA445AD6-B857-403E-95C1-F12DEC92E57C}|LMS_DataAccess\\LMS_DataAccess.csproj|solutionrelative:lms_dataaccess\\interfaces\\ibookrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -17,33 +29,72 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 318,
-          "SelectedChildIndex": 1,
+          "DockedWidth": 290,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "BooksController.cs",
-              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs",
-              "RelativeDocumentMoniker": "LibraryManagementSystem\\Controllers\\BooksController.cs",
-              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs",
-              "RelativeToolTip": "LibraryManagementSystem\\Controllers\\BooksController.cs",
-              "ViewState": "AQIAAMIAAAAAAAAAAAAowNEAAAAAAAAA",
+              "DocumentIndex": 4,
+              "Title": "IBookRepository.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LMS_DataAccess\\Interfaces\\IBookRepository.cs",
+              "RelativeDocumentMoniker": "LMS_DataAccess\\Interfaces\\IBookRepository.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LMS_DataAccess\\Interfaces\\IBookRepository.cs",
+              "RelativeToolTip": "LMS_DataAccess\\Interfaces\\IBookRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAANAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-04T13:28:26.343Z",
+              "WhenOpened": "2024-07-09T07:36:25.046Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "BookRepository.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LMS_DataAccess\\Repositories\\BookRepository.cs",
+              "RelativeDocumentMoniker": "LMS_DataAccess\\Repositories\\BookRepository.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LMS_DataAccess\\Repositories\\BookRepository.cs",
+              "RelativeToolTip": "LMS_DataAccess\\Repositories\\BookRepository.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAAAsAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-09T07:39:10.224Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IBookService.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LMS_BusinessLogic\\Interfaces\\IBookService.cs",
+              "RelativeDocumentMoniker": "LMS_BusinessLogic\\Interfaces\\IBookService.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LMS_BusinessLogic\\Interfaces\\IBookService.cs",
+              "RelativeToolTip": "LMS_BusinessLogic\\Interfaces\\IBookService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAuAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-09T07:38:36.568Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "BookService.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LMS_BusinessLogic\\Services\\BookService.cs",
+              "RelativeDocumentMoniker": "LMS_BusinessLogic\\Services\\BookService.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LMS_BusinessLogic\\Services\\BookService.cs",
+              "RelativeToolTip": "LMS_BusinessLogic\\Services\\BookService.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAAwBIAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-07-09T07:38:33.809Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "BookCollectionsController.cs",
-              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "RelativeDocumentMoniker": "LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "RelativeToolTip": "LibraryManagementSystem\\Controllers\\BookCollectionsController.cs",
-              "ViewState": "AQIAAHgAAAAAAAAAAAAowCAAAAAAAAAA",
+              "Title": "BooksController.cs",
+              "DocumentMoniker": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs",
+              "RelativeDocumentMoniker": "LibraryManagementSystem\\Controllers\\BooksController.cs",
+              "ToolTip": "D:\\Projects\\LibraryManagementSystem\\LibraryManagementSystem\\Controllers\\BooksController.cs*",
+              "RelativeToolTip": "LibraryManagementSystem\\Controllers\\BooksController.cs*",
+              "ViewState": "AQIAAGQAAAAAAAAAAAAkwHUAAAAoAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-04T19:00:31.19Z",
+              "WhenOpened": "2024-07-09T07:38:21.371Z",
               "EditorCaption": ""
             }
           ]
