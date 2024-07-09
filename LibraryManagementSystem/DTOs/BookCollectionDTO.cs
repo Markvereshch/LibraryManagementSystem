@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManagementSystem.Models
+namespace LibraryManagementSystem.DTOs
 {
-    public class BookCollection
+    public class BookCollectionDTO
     {
         [Key]
         public int Id { get; set; }
@@ -10,6 +10,6 @@ namespace LibraryManagementSystem.Models
         [MaxLength(100, ErrorMessage = "Max length of author's fullname is 100 chars")]
         public string Name { get; set; }
         [Required(ErrorMessage = "Collection should has a colleciton")]
-        public List<Book> Books { get; set; }
+        public List<BookDTO> Books { get; set; } = new List<BookDTO>();
     }
 }

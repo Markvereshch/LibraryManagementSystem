@@ -1,23 +1,34 @@
-﻿using LMS_BusinessLogic.Interfaces;
+﻿using AutoMapper;
+using LMS_BusinessLogic.Interfaces;
+using LMS_BusinessLogic.Models;
 using LMS_DataAccess.Data;
 using LMS_DataAccess.Entities;
 using LMS_DataAccess.Interfaces;
+using LMS_Shared;
 
 namespace LMS_BusinessLogic.Services
 {
     public class BookService : IBookService
     {
         private readonly IBookRepository _bookRepository;
-        public BookService(IBookRepository bookRepository)
+        private readonly IMapper _mapper;
+        public BookService(IBookRepository bookRepository, IMapper mapper)
         {
             _bookRepository = bookRepository;
+            _mapper = mapper;
         }
-        public async Task<Book> CreateBookAsync(Book book)
+        public async Task<BookModel> CreateBookAsync(BookModel bookModel)
         {
-            await _bookRepository.CreateBookAsync(book);
-            return book;
+            var book = _mapper.Map<Book>(bookModel);
+            var createdBook = await _bookRepository.CreateBookAsync(book);
+            return _mapper.Map<BookModel>(createdBook);
         }
-        public async Task<IEnumerable<Book>> GetAllBooksAsync(int? year,
+        public async Task DeleteBookAsync(BookModel bookModel)
+        {
+            var book = _mapper.Map<Book>(bookModel);
+            await _bookRepository.DeleteBookAsync(book);
+        }
+        public async Task<IEnumerable<BookModel>> GetAllBooksAsync(int? year,
         string? title, string? author, string? genre, BookStatus? status,
         int? collectionId)
         {
@@ -46,11 +57,26 @@ namespace LMS_BusinessLogic.Services
             {
                 books = books.Where(b => b.CollectionId == collectionId);
             }
-            return books;
+            var booksModel = _mapper.Map<List<BookModel>>(books);
+            return booksModel;
         }
-        public async Task<Book> GetBookAsync(int id)
+        public async Task<BookModel> GetBookAsync(int id)
         {
-            return await _bookRepository.GetBookAsync(b => b.Id == id, false);
+            var book = await _bookRepository.GetBookAsync(b => b.Id == id, false);
+            return _mapper.Map<BookModel>(book);
+        }
+        public async Task<BookModel> UpdateBookAsync(BookModel book, int id)
+        {
+            var bookToUpdate = await _bookRepository.GetBookAsync(b => b.Id == id, false);
+            bookToUpdate.Title = book.Title;
+            bookToUpdate.Author = book.Author;
+            bookToUpdate.Genre = book.Genre;
+            bookToUpdate.Year = book.Year;
+            bookToUpdate.Status = book.Status;
+            bookToUpdate.CollectionId = book.CollectionId;
+
+            var updatedBook = await _bookRepository.UpdateBookAsync(bookToUpdate);
+            return _mapper.Map<BookModel>(updatedBook);
         }
     }
 }

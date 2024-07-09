@@ -43,7 +43,8 @@ namespace LMS_DataAccess.Migrations
                         name: "FK_Books_BookCollections_CollectionId",
                         column: x => x.CollectionId,
                         principalTable: "BookCollections",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.InsertData(

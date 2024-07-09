@@ -1,5 +1,4 @@
-﻿using LMS_DataAccess.Data;
-using LMS_DataAccess.Entities;
+﻿using LMS_DataAccess.Entities;
 using System.Linq.Expressions;
 
 namespace LMS_DataAccess.Interfaces
@@ -8,6 +7,8 @@ namespace LMS_DataAccess.Interfaces
     {
         Task<IEnumerable<Book>> GetAllBooksAsync();
         Task<Book> GetBookAsync(Expression<Func<Book, bool>> filter = null, bool isTrackable = false);
-        Task CreateBookAsync(Book book);
+        Task<Book> CreateBookAsync(Book book);
+        Task DeleteBookAsync(Book book);
+        Task<Book> UpdateBookAsync(Book book);
     }
 }

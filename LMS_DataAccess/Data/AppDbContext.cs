@@ -13,12 +13,11 @@ namespace LMS_DataAccess.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>().HasData(
-                new Book()
-                {
-                  Id = 1, Author = "Good Boi", Genre = "Some genre", Status = BookStatus.Available, Title = "Good book", Year = 1941
-                }
-            );
+            modelBuilder.Entity<Book>()
+            .HasOne(b => b.Collection)
+            .WithMany(bc => bc.Books)
+            .HasForeignKey(b => b.CollectionId)
+            .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

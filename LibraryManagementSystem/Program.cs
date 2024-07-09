@@ -1,5 +1,7 @@
+using LibraryManagementSystem;
 using LibraryManagementSystem.Middleware;
 using LibraryManagementSystem.ModelBinders;
+using LMS_BusinessLogic;
 using LMS_BusinessLogic.Interfaces;
 using LMS_BusinessLogic.Services;
 using LMS_DataAccess.Data;
@@ -15,11 +17,14 @@ builder.Services.AddControllers(options =>
     //options.ModelBinderProviders.Insert(0, new BookModelBinderProvider()); //This was a bad idea. This binder blocks JSON reading in methods that work with Book model.
 }).AddNewtonsoftJson();
 
-//Layouts and DB
+//Connection to the database
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+
+//Automapper
+builder.Services.AddAutoMapper(typeof(BusinessLayerMapper), typeof(PresentationLayerMapper));
 
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();

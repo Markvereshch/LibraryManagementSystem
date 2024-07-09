@@ -1,12 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using LMS_Shared;
 using System.ComponentModel.DataAnnotations;
-using LMS_Shared;
 
-namespace LMS_DataAccess.Entities
+namespace LibraryManagementSystem.DTOs
 {
-    public class Book
+    public class BookDTO
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Enter a title")]
@@ -31,9 +30,7 @@ namespace LMS_DataAccess.Entities
         [Range(0, 2, ErrorMessage = "Correct statuses: 'Available' = 0, 'Borrowed' = 1, 'Lost' = 2")]
         public BookStatus Status { get; set; } = 0;
 
-        [ForeignKey("Collection")]
+        [Required]
         public int? CollectionId { get; set; }
-
-        public BookCollection Collection { get; set; }
     }
 }

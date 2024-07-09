@@ -1,8 +1,8 @@
-﻿using LibraryManagementSystem.Data;
-using LibraryManagementSystem.Models;
+﻿using AutoMapper;
+using LibraryManagementSystem.DTOs;
 using LMS_BusinessLogic.Interfaces;
+using LMS_BusinessLogic.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -10,36 +10,57 @@ namespace LibraryManagementSystem.Controllers
     [ApiController]
     public class BookCollectionsController : ControllerBase
     {
-        private readonly IBookCollectionService _bookCollection; 
-        public BookCollectionsController(IBookCollectionService bookCollection)
+
+        private readonly IBookCollectionService _collectionService;
+        private readonly IBookService _bookService;
+        private readonly IMapper _mapper;
+        public BookCollectionsController(IBookCollectionService bookCollection, IBookService bookService, IMapper mapper)
         {
-            _bookCollection = bookCollection;
+            _collectionService = bookCollection;
+            _bookService = bookService;
+            _mapper = mapper;
         }
 
         //GET method, which retrieves all collections
         [HttpGet(Name = "ReadAllCollections")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<BookCollection>>> ReadAllBookCollections()
+        public async Task<ActionResult<IEnumerable<BookCollectionDTO>>> ReadAllBookCollections()
         {
-            var collections = _bookCollection.GetAllCollectionsAsync();
-            return Ok(collections);
+            var collectionsModel = await _collectionService.GetAllCollectionsAsync();
+            var collectionsDTO = _mapper.Map<List<BookCollectionDTO>>(collectionsModel);
+            return Ok(collectionsDTO);
         }
-        /*
+
         //GET method, which retrieves the collection with the specified ID
         [HttpGet("{id:int}", Name = "ReadCollection")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<BookCollection> ReadBookCollection(int id)
+        public async Task<ActionResult<BookCollectionDTO>> ReadBookCollection(int id)
         {
-            var result = ValidateCollection(id);
+            var result = await ValidateCollection(id);
             if (result.Result != null)
             {
                 return result.Result;
             }
-            var collection = result.Value;
+            var collectionDTO = result.Value;
 
-            return Ok(collection);
+            return Ok(collectionDTO);
+        }
+
+        //Private helper method to validate the collection
+        private async Task<ActionResult<BookCollectionDTO>> ValidateCollection(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest($"Invalid collection ID (id={id})");
+            }
+            var collectionModel = await _collectionService.GetBookCollectionAsync(id);
+            if (collectionModel == null)
+            {
+                return NotFound($"Collection with ID={id} cannot be found");
+            }
+            return _mapper.Map<BookCollectionDTO>(collectionModel);
         }
 
         //POST method, which creates the book collection
@@ -47,24 +68,22 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<BookCollection> CreateBookCollection([FromBody] BookCollection createdCollection)
+        public async Task<ActionResult<BookCollectionDTO>> CreateBookCollection([FromBody] BookCollectionOperationsDTO collectionDTO)
         {
-            if (createdCollection == null)
+            if (collectionDTO == null)
             {
                 return BadRequest("Invalid collection format");
             }
-            if (LocalLibrary.Collections.Any(c => string.Equals(c.Name, createdCollection.Name, StringComparison.OrdinalIgnoreCase)))
+            var collections = await _collectionService.GetAllCollectionsAsync();
+            if (collections.Any(c => string.Equals(c.Name, collectionDTO.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 return BadRequest("Such a collection already in the library");
             }
-            if (createdCollection.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-            createdCollection.Id = LocalLibrary.CollectionsId;
-            LocalLibrary.Collections.Add(createdCollection);
+            var collectionModel = _mapper.Map<BookCollectionModel>(collectionDTO);
+            var createdModel = await _collectionService.CreateBookCollectionAsync(collectionModel);
+            var createdDTO = _mapper.Map<BookCollectionDTO>(createdModel);
 
-            return CreatedAtRoute("ReadCollection", new { id = createdCollection.Id }, createdCollection);
+            return CreatedAtRoute("ReadCollection", new { id = createdDTO.Id }, createdDTO);
         }
 
         //DELETE method, which deletes the collection with the specified ID
@@ -72,19 +91,16 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult DeleteBookCollection(int id)
+        public async Task<IActionResult> DeleteBookCollection(int id)
         {
-            var result = ValidateCollection(id);
+            var result = await ValidateCollection(id);
             if (result.Result != null)
             {
                 return result.Result;
             }
-            var collection = result.Value;
-            foreach (var book in collection.Books)
-            {
-                book.CollectionId = 0;
-            }
-            LocalLibrary.Collections.Remove(collection);
+            var collectionDTO = result.Value;
+            var collectionModel = _mapper.Map<BookCollectionModel>(collectionDTO);
+            await _collectionService.DeleteBookCollectionAsync(collectionModel);
 
             return NoContent();
         }
@@ -95,9 +111,9 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public IActionResult AssignBookToCollection(int id, int bookId)
+        public async Task<IActionResult> AssignBookToCollection(int id, int bookId)
         {
-            var result = ValidateCollection(id);
+            var result = await ValidateCollection(id);
             if (result.Result != null)
             {
                 return result.Result;
@@ -106,19 +122,17 @@ namespace LibraryManagementSystem.Controllers
             {
                 return BadRequest($"Invalid book ID (bookId={bookId})");
             }
-            var collection = result.Value;
-
-            var book = LocalLibrary.Books.FirstOrDefault(b => b.Id == bookId);
-            if (book == null)
+            var bookModel = await _bookService.GetBookAsync(bookId);
+            if (bookModel == null)
             {
                 return NotFound($"Book with ID={bookId} doesn't exist");
             }
-            if (book.CollectionId != 0)
+            if (bookModel.CollectionId != null)
             {
-                return Conflict($"Book with ID={bookId} is assigned to the collection with ID={book.CollectionId}");
+                return Conflict($"Book with ID={bookId} is assigned to the collection with ID={bookModel.CollectionId}");
             }
-            collection.Books.Add(book);
-            book.CollectionId = collection.Id;
+            bookModel.CollectionId = id;
+            await _bookService.UpdateBookAsync(bookModel, bookId);
 
             return NoContent();
         }
@@ -129,9 +143,9 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public IActionResult RemoveBookFromCollection(int id, int bookId)
+        public async Task<IActionResult> RemoveBookFromCollection(int id, int bookId)
         {
-            var result = ValidateCollection(id);
+            var result = await ValidateCollection(id);
             if (result.Result != null)
             {
                 return result.Result;
@@ -140,33 +154,15 @@ namespace LibraryManagementSystem.Controllers
             {
                 return BadRequest($"Invalid book ID (bookId={bookId})");
             }
-            var collection = result.Value;
-
-            var book = collection.Books.FirstOrDefault(b => b.Id == bookId);
-            if (book == null)
+            var bookModel = await _bookService.GetBookAsync(bookId);
+            if (bookModel == null || bookModel.CollectionId != id)
             {
                 return NotFound($"Book with ID={bookId} is not assigned to collection with ID={id}");
             }
-            collection.Books.Remove(book);
-            book.CollectionId = 0;
+            bookModel.CollectionId = null;
+            await _bookService.UpdateBookAsync(bookModel, bookId);
 
             return NoContent();
         }
-
-        //Private helper method to validate the collection
-        private ActionResult<BookCollection> ValidateCollection(int id)
-        {
-            if (id <= 0)
-            {
-                return BadRequest($"Invalid collection ID (id={id})");
-            }
-            var collection = LocalLibrary.Collections.FirstOrDefault(c => c.Id == id);
-            if (collection == null)
-            {
-                return NotFound($"Collection with ID={id} cannot be found");
-            }
-            return collection;
-        }
-        */
     }
 }

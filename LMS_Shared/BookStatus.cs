@@ -1,4 +1,4 @@
-﻿namespace LibraryManagementSystem.Data
+﻿namespace LMS_Shared
 {
     public enum BookStatus
     {
