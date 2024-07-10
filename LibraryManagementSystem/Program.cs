@@ -8,6 +8,7 @@ using LMS_DataAccess.Data;
 using LMS_DataAccess.Interfaces;
 using LMS_DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,13 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IBookCollectionService, BookCollectionService>();
 builder.Services.AddScoped<IBookCollectionRepository, BookCollectionRepository>();
+
+//Logging
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Warning()
+    .WriteTo.File(builder.Configuration["Files:LoggingFile"], rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+builder.Host.UseSerilog();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
