@@ -2,7 +2,6 @@
 using LMS_DataAccess.Entities;
 using LMS_DataAccess.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace LMS_DataAccess.Repositories

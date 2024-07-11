@@ -13,11 +13,9 @@ namespace LMS_DataAccess.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Book>()
-            .HasOne(b => b.Collection)
-            .WithMany(bc => bc.Books)
-            .HasForeignKey(b => b.CollectionId)
-            .OnDelete(DeleteBehavior.SetNull);
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new BookConfiguration());
+            modelBuilder.ApplyConfiguration(new BookCollectionConfiguration());
         }
     }
 }

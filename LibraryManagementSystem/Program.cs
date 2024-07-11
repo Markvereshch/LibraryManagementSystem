@@ -47,12 +47,23 @@ builder.Services
     .AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();
 
-
 //Connection to the database
+var connectionString = builder.Configuration.GetConnectionString("DefaultSQLConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
+    options.UseSqlServer(connectionString);
 });
+
+//Adding distributed caching
+builder.Services.AddDistributedSqlServerCache(options =>
+{
+    options.ConnectionString = connectionString;
+    options.SchemaName = "dbo";
+    options.TableName = "LMSCache";
+});
+builder.Services.AddScoped<IBookCaching, BookCachingRepository>();
+builder.Services.AddScoped<IBookCollectionCaching, BookCollectionCachingRepository>();
 
 //Automapper
 builder.Services.AddAutoMapper(typeof(BusinessLayerMapper), typeof(PresentationLayerMapper));
