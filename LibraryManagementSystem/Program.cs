@@ -1,4 +1,8 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using LibraryManagementSystem;
+using LibraryManagementSystem.Configuration;
+using LibraryManagementSystem.FluentValidators;
 using LibraryManagementSystem.Middleware;
 using LibraryManagementSystem.ModelBinders;
 using LMS_BusinessLogic;
@@ -17,6 +21,32 @@ builder.Services.AddControllers(options =>
 {
     //options.ModelBinderProviders.Insert(0, new BookModelBinderProvider()); //This was a bad idea. This binder blocks JSON reading in methods that work with Book model.
 }).AddNewtonsoftJson();
+
+//Registering application options
+builder.Services
+    .AddOptions<Files>()
+    .BindConfiguration("Files")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<ConnectionStrings>()
+    .BindConfiguration("ConnectionStrings")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+//Registering validators
+builder.Services
+    .AddValidatorsFromAssemblyContaining<BookDTOValidator>()
+    .AddValidatorsFromAssemblyContaining<BookOperationsDTOValidator>()
+    .AddValidatorsFromAssemblyContaining<BookCollectionDTOValidator>()
+    .AddValidatorsFromAssemblyContaining<BookCollectionOperationsDTOValidator>();
+
+//Adding FluentValidation
+builder.Services
+    .AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters();
+
 
 //Connection to the database
 builder.Services.AddDbContext<AppDbContext>(options =>

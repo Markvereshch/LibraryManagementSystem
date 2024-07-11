@@ -127,7 +127,7 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BookDTO>> CreateBook([FromBody] BookOperationsDTO createdBookDTO)
         {
-            if (createdBookDTO == null)
+            if (createdBookDTO == null || !ModelState.IsValid)
             {
                 _logger.LogError("CreateBook error: Invalid BookOpeationsDTO format");
                 return BadRequest(createdBookDTO);
