@@ -1,5 +1,5 @@
-﻿using LibraryManagementSystem.Data;
-using LibraryManagementSystem.Models;
+﻿using LibraryManagementSystem.DTOs;
+using LMS_Shared;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -41,7 +41,7 @@ namespace LibraryManagementSystem.ModelBinders
                 context.ModelState.AddModelError("", "Year, id, collectionId or status is not valid");
                 return Task.CompletedTask;
             }
-            var result = new Book
+            var result = new BookDTO
             {
                 Id = id,
                 Title = titleValue,
