@@ -1,27 +1,29 @@
-﻿using LMS_DataAccess.Entities;
-using LMS_DataAccess.Interfaces;
+﻿using LMS_BusinessLogic.Interfaces;
+using LMS_DataAccess.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System.Text;
 
 namespace LMS_DataAccess.Repositories
 {
-    public class BookCachingRepository : IBookCaching
+    public class BookCachingRepository : ICaching<Book>
     {
         private const string BookCachePrefix = "Book_";
-        private const int timespan = 2;
+        private const int Timespan = 2;
         private readonly IDistributedCache _cache;
         public BookCachingRepository(IDistributedCache cache)
         {
             _cache = cache;
         }
-        public Task DeleteBookAsync(int bookId)
+        public async Task InvalidateCachedCollectionAsync()
         {
-            _cache.Remove(BookCachePrefix + bookId);
-            _cache.Remove(BookCachePrefix + "SET");
-            return Task.CompletedTask;
+            await _cache.RemoveAsync(BookCachePrefix + "SET");
         }
-        public async Task<Book?> GetBookAsync(int bookId)
+        public async Task InvalidateCacheAsync(int bookId)
+        {
+            await _cache.RemoveAsync(BookCachePrefix + bookId);
+        }
+        public async Task<Book?> GetCacheAsync(int bookId)
         {
             var cachedBook = await _cache.GetAsync(BookCachePrefix + bookId);
             if (cachedBook != null)
@@ -31,7 +33,7 @@ namespace LMS_DataAccess.Repositories
             }
             return null;
         }
-        public async Task<IEnumerable<Book>?> GetBooksAsync()
+        public async Task<IEnumerable<Book>?> GetCachedCollectionAsync()
         {
             string cacheKey = BookCachePrefix + "SET";
             var cachedBooks = await _cache.GetAsync(cacheKey);
@@ -42,7 +44,7 @@ namespace LMS_DataAccess.Repositories
             }
             return null;
         }
-        public async Task SetBookAsync(Book book)
+        public async Task SetCacheAsync(Book book)
         {
             if (book != null)
             {
@@ -50,12 +52,12 @@ namespace LMS_DataAccess.Repositories
                 var encodedBook = Encoding.UTF8.GetBytes(serializedBook);
                 var options = new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(timespan)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Timespan)
                 };
                 await _cache.SetAsync(BookCachePrefix + book.Id, encodedBook, options);
             }
         }
-        public async Task SetBooksAsync(IEnumerable<Book> books)
+        public async Task SetCachedCollectionAsync(IEnumerable<Book> books)
         {
             if (books != null)
             {
@@ -64,7 +66,7 @@ namespace LMS_DataAccess.Repositories
                 var encodedBooks = Encoding.UTF8.GetBytes(serializedBooks);
                 var options = new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(timespan)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Timespan)
                 };
                 await _cache.SetAsync(cacheKey, encodedBooks, options);
             }

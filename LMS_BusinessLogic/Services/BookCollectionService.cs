@@ -10,45 +10,50 @@ namespace LMS_BusinessLogic.Services
     {
         private readonly IBookCollectionRepository _collectionRepository;
         private readonly IMapper _mapper;
-        private readonly IBookCollectionCaching _cache;
-        public BookCollectionService(IBookCollectionRepository collectionRepository, IMapper mapper, IBookCollectionCaching cache)
+        private readonly ICaching<BookCollection> _cache;
+        public BookCollectionService(IBookCollectionRepository collectionRepository, IMapper mapper, ICaching<BookCollection> cache)
         {
             _collectionRepository = collectionRepository;
             _mapper = mapper;
             _cache = cache;
         }
-        public async Task<BookCollectionModel> CreateBookCollectionAsync(BookCollectionModel collectionModel)
+        public async Task<BookCollectionModel> CreateAsync(BookCollectionModel collectionModel)
         {
             var collection = _mapper.Map<BookCollection>(collectionModel);
-            var createdCollection = await _collectionRepository.CreateBookCollectionAsync(collection);
-            await _cache.DeleteCollectionAsync(createdCollection.Id);
+            var createdCollection = await _collectionRepository.CreateAsync(collection);
+            await _cache.InvalidateCacheAsync(createdCollection.Id);
             return _mapper.Map<BookCollectionModel>(createdCollection);
         }
-        public async Task DeleteBookCollectionAsync(BookCollectionModel collectionModel)
+        public async Task DeleteAsync(BookCollectionModel collectionModel)
         {
             var collection = _mapper.Map<BookCollection>(collectionModel);
-            await _collectionRepository.DeleteBookCollectionAsync(collection);
-            await _cache.DeleteCollectionAsync(collectionModel.Id);
+            await _collectionRepository.DeleteAsync(collection);
+            await _cache.InvalidateCacheAsync(collectionModel.Id);
         }
-        public async Task<IEnumerable<BookCollectionModel>> GetAllCollectionsAsync()
+        public async Task<IEnumerable<BookCollectionModel>> GetAllAsync()
         {
-            var collection = await _cache.GetBookCollectionsAsync();
+            var collection = await _cache.GetCachedCollectionAsync();
             if (collection == null)
             {
-                collection = await _collectionRepository.GetAllCollectionsAsync();
-                await _cache.SetBookCollectionsAsync(collection);
+                collection = await _collectionRepository.GetAllAsync();
+                await _cache.SetCachedCollectionAsync(collection);
             }
             return _mapper.Map<List<BookCollectionModel>>(collection);
         }
-        public async Task<BookCollectionModel> GetBookCollectionAsync(int id)
+        public async Task<BookCollectionModel> GetAsync(int id)
         {
-            var collection = await _cache.GetBookCollectionAsync(id);
+            var collection = await _cache.GetCacheAsync(id);
             if (collection == null)
             {
-                collection = await _collectionRepository.GetBookCollectionAsync(c => c.Id == id);
-                await _cache.SetBookCollectionAsync(collection);
+                collection = await _collectionRepository.GetAsync(id);
+                await _cache.SetCacheAsync(collection);
             }
             return _mapper.Map<BookCollectionModel>(collection);
+        }
+        public async Task UpdateAsync(int id)
+        {
+            await _cache.InvalidateCacheAsync(id);
+            await _cache.InvalidateCachedCollectionAsync();
         }
     }
 }

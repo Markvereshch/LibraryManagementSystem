@@ -1,27 +1,29 @@
-﻿using LMS_DataAccess.Entities;
-using LMS_DataAccess.Interfaces;
+﻿using LMS_BusinessLogic.Interfaces;
+using LMS_DataAccess.Entities;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System.Text;
 
 namespace LMS_DataAccess.Repositories
 {
-    public class BookCollectionCachingRepository : IBookCollectionCaching
+    public class BookCollectionCachingRepository : ICaching<BookCollection>
     {
         private const string CollectionCachePrefix = "BookCollection_";
-        private const int timespan = 2;
+        private const int Timespan = 2;
         private readonly IDistributedCache _cache;
         public BookCollectionCachingRepository(IDistributedCache cache)
         {
             _cache = cache;
         }
-        public Task DeleteCollectionAsync(int collectionId)
+        public async Task InvalidateCachedCollectionAsync()
         {
-            _cache.Remove(CollectionCachePrefix + collectionId);
-            _cache.Remove(CollectionCachePrefix + "SET");
-            return Task.CompletedTask;
+            await _cache.RemoveAsync(CollectionCachePrefix + "SET");
         }
-        public async Task<BookCollection?> GetBookCollectionAsync(int collectionId)
+        public async Task InvalidateCacheAsync(int collectionId)
+        {
+            await _cache.RemoveAsync(CollectionCachePrefix + collectionId);
+        }
+        public async Task<BookCollection?> GetCacheAsync(int collectionId)
         {
             var cachedCollection = await _cache.GetAsync(CollectionCachePrefix + collectionId);
             if (cachedCollection != null)
@@ -31,7 +33,7 @@ namespace LMS_DataAccess.Repositories
             }
             return null;
         }
-        public async Task<IEnumerable<BookCollection>?> GetBookCollectionsAsync()
+        public async Task<IEnumerable<BookCollection>?> GetCachedCollectionAsync()
         {
             var cachedCollections = await _cache.GetAsync(CollectionCachePrefix + "SET");
             if (cachedCollections != null)
@@ -41,7 +43,7 @@ namespace LMS_DataAccess.Repositories
             }
             return null;
         }
-        public async Task SetBookCollectionAsync(BookCollection collection)
+        public async Task SetCacheAsync(BookCollection collection)
         {
             if (collection != null)
             {
@@ -49,12 +51,12 @@ namespace LMS_DataAccess.Repositories
                 var encodedCollection = Encoding.UTF8.GetBytes(serializedCollection);
                 var options = new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(timespan)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Timespan)
                 };
                 await _cache.SetAsync(CollectionCachePrefix + collection.Id, encodedCollection, options);
             }
         }
-        public async Task SetBookCollectionsAsync(IEnumerable<BookCollection> collections)
+        public async Task SetCachedCollectionAsync(IEnumerable<BookCollection> collections)
         {
             if (collections != null)
             {
@@ -66,7 +68,7 @@ namespace LMS_DataAccess.Repositories
                 var encodedCollections = Encoding.UTF8.GetBytes(serializedCollections);
                 var options = new DistributedCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(timespan)
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Timespan)
                 };
                 await _cache.SetAsync(CollectionCachePrefix + "SET", encodedCollections, options);
             }

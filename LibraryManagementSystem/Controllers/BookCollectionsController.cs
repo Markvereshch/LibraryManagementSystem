@@ -27,7 +27,7 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BookCollectionDTO>>> ReadAllBookCollections()
         {
-            var collectionsModel = await _collectionService.GetAllCollectionsAsync();
+            var collectionsModel = await _collectionService.GetAllAsync();
             var collectionsDTO = _mapper.Map<List<BookCollectionDTO>>(collectionsModel);
 
             _logger.LogInformation("Reading all book collections...");
@@ -60,7 +60,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return BadRequest($"Invalid collection ID (id={id})");
             }
-            var collectionModel = await _collectionService.GetBookCollectionAsync(id);
+            var collectionModel = await _collectionService.GetAsync(id);
             if (collectionModel == null)
             {
                 return NotFound($"Collection with ID={id} cannot be found");
@@ -80,14 +80,14 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("CreateBookCollection error: Invalid BookCollectionOpeationsDTO format");
                 return BadRequest("Invalid collection format");
             }
-            var collections = await _collectionService.GetAllCollectionsAsync();
+            var collections = await _collectionService.GetAllAsync();
             if (collections.Any(c => string.Equals(c.Name, collectionDTO.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 _logger.LogError("CreateBookCollection error: There is already a collection with the name '{0}' in the library", collectionDTO.Name);
                 return BadRequest("Such a collection already in the library");
             }
             var collectionModel = _mapper.Map<BookCollectionModel>(collectionDTO);
-            var createdModel = await _collectionService.CreateBookCollectionAsync(collectionModel);
+            var createdModel = await _collectionService.CreateAsync(collectionModel);
             var createdDTO = _mapper.Map<BookCollectionDTO>(createdModel);
 
             _logger.LogInformation("Collection with ID={0} has been successfully created", createdDTO.Id);
@@ -109,7 +109,7 @@ namespace LibraryManagementSystem.Controllers
             }
             var collectionDTO = result.Value;
             var collectionModel = _mapper.Map<BookCollectionModel>(collectionDTO);
-            await _collectionService.DeleteBookCollectionAsync(collectionModel);
+            await _collectionService.DeleteAsync(collectionModel);
 
             _logger.LogInformation("Book collection with ID={0} has been successfully deleted", id);
             return NoContent();
@@ -134,7 +134,7 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("AssignBookToCollection error: Invalid book id={0}", bookId);
                 return BadRequest($"Invalid book ID (bookId={bookId})");
             }
-            var bookModel = await _bookService.GetBookAsync(bookId);
+            var bookModel = await _bookService.GetAsync(bookId);
             if (bookModel == null)
             {
                 _logger.LogError("AssignBookToCollection error: Book with ID={0} doesn't exist", bookId);
@@ -146,7 +146,8 @@ namespace LibraryManagementSystem.Controllers
                 return Conflict($"Book with ID={bookId} is assigned to the collection with ID={bookModel.CollectionId}");
             }
             bookModel.CollectionId = id;
-            await _bookService.UpdateBookAsync(bookModel, bookId);
+            await _bookService.UpdateAsync(bookModel, bookId);
+            await _collectionService.UpdateAsync(id);
 
             _logger.LogInformation("Book with ID={0} has been successfully assigned to the collection with ID={1}", bookId, id);
             return NoContent();
@@ -171,14 +172,15 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("RemoveBookFromCollection error: Invalid book id={0}", bookId);
                 return BadRequest($"Invalid book ID (bookId={bookId})");
             }
-            var bookModel = await _bookService.GetBookAsync(bookId);
+            var bookModel = await _bookService.GetAsync(bookId);
             if (bookModel == null || bookModel.CollectionId != id)
             {
                 _logger.LogError("RemoveBookFromCollection error: Book with ID={0} is not assigned to the collection with ID={1}", bookId, id);
                 return NotFound($"Book with ID={bookId} is not assigned to the collection with ID={id}");
             }
             bookModel.CollectionId = null;
-            await _bookService.UpdateBookAsync(bookModel, bookId);
+            await _bookService.UpdateAsync(bookModel, bookId);
+            await _collectionService.UpdateAsync(id);
 
             _logger.LogInformation("Book with ID={0} has been successfully removed from the collection with ID={1}", bookId, id);
             return NoContent();

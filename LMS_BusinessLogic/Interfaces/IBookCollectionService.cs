@@ -2,11 +2,9 @@
 
 namespace LMS_BusinessLogic.Interfaces
 {
-    public interface IBookCollectionService
+    public interface IBookCollectionService : IService<BookCollectionModel>
     {
-        Task<IEnumerable<BookCollectionModel>> GetAllCollectionsAsync();
-        Task<BookCollectionModel> GetBookCollectionAsync(int id);
-        Task<BookCollectionModel> CreateBookCollectionAsync(BookCollectionModel collectionModel);
-        Task DeleteBookCollectionAsync(BookCollectionModel collectionModel);
+        Task<IEnumerable<BookCollectionModel>> GetAllAsync();
+        Task UpdateAsync(int id);
     }
 }

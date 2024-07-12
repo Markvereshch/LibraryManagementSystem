@@ -26,20 +26,28 @@ namespace LibraryManagementSystem.Controllers
         [HttpGet(Name = "ReadAllBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BookDTO>>> ReadAllBooks
-        ([FromQuery(Name = "nameFilter")] int? year,
+        ([FromQuery(Name = "yearFilter")] int? year,
         [FromQuery(Name = "titleFilter")] string? title,
         [FromQuery(Name = "authorFilter")] string? author,
         [FromQuery(Name = "genreFilter")] string? genre,
         [FromQuery(Name = "bookStatusFilter")] BookStatus? status,
         [FromQuery(Name = "collectionIdFilter")] int? collectionId)
         {
-            var booksModel = await _bookService.GetAllBooksAsync(year, title, author, genre, status, collectionId);
+            BookFiltersModel filters = new()
+            {
+                Year = year,
+                Title = title,
+                Author = author,
+                Genre = genre,
+                Status = status,
+                CollectionId = collectionId
+            };
+            var booksModel = await _bookService.GetAllAsync(filters);
             var booksDTO = _mapper.Map<List<BookDTO>>(booksModel);
 
             _logger.LogInformation("Reading all books...");
             return Ok(booksDTO);
         }
-
         //GET method, which retrieves the book with the specified id
         [HttpGet("{id:int}", Name = "ReadBook")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -66,7 +74,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return BadRequest($"Invalid book ID (id={id})");
             }
-            var bookModel = await _bookService.GetBookAsync(id);
+            var bookModel = await _bookService.GetAsync(id);
             if (bookModel == null)
             {
                 return NotFound($"Book with ID={id} doesn't exist");
@@ -86,7 +94,7 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("ReadFirstCopyWithQuery error: Invalid BookDTO format in a URL query");
                 return BadRequest($"Invalid book format");
             }
-            var books = await _bookService.GetAllBooksAsync();
+            var books = await _bookService.GetAllAsync(new BookFiltersModel());
             var copy = books.FirstOrDefault(c => string.Equals(c.Author, bookDTO.Author, StringComparison.OrdinalIgnoreCase)
                                             && string.Equals(c.Title, bookDTO.Title, StringComparison.OrdinalIgnoreCase));
             if (copy == null)
@@ -133,7 +141,7 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest(createdBookDTO);
             }
             var bookModel = _mapper.Map<BookModel>(createdBookDTO);
-            var createdModel = await _bookService.CreateBookAsync(bookModel);
+            var createdModel = await _bookService.CreateAsync(bookModel);
             var bookDTO = _mapper.Map<BookDTO>(createdModel);
 
             _logger.LogInformation("Book with ID={0} has been successfully created", bookDTO.Id);
@@ -155,7 +163,7 @@ namespace LibraryManagementSystem.Controllers
             }
             var bookDTO = result.Value;
             var bookModel = _mapper.Map<BookModel>(bookDTO);
-            await _bookService.DeleteBookAsync(bookModel);
+            await _bookService.DeleteAsync(bookModel);
 
             _logger.LogInformation("Book with ID={0} has been successfully deleted", id);
             return NoContent();
@@ -179,10 +187,10 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("UpdateBook error: Invalid BookOpeationsDTO format");
                 return BadRequest($"Invalid update book format.");
             }
-            var oldBookModel = await _bookService.GetBookAsync(result.Value.Id);
+            var oldBookModel = await _bookService.GetAsync(result.Value.Id);
             var newBookModel = _mapper.Map<BookModel>(bookToUpdateDTO);
             newBookModel.CollectionId = oldBookModel.CollectionId;
-            var updatedModel = await _bookService.UpdateBookAsync(newBookModel, id);
+            var updatedModel = await _bookService.UpdateAsync(newBookModel, id);
 
             _logger.LogInformation("Book with ID={0} has been successfully updated", id);
             return Ok(_mapper.Map<BookDTO>(updatedModel));
@@ -214,7 +222,7 @@ namespace LibraryManagementSystem.Controllers
             var bookDTO = result.Value;
             bookDTO.Status = (BookStatus)status;
             var bookModel = _mapper.Map<BookModel>(bookDTO);
-            await _bookService.UpdateBookAsync(bookModel, id);
+            await _bookService.UpdateAsync(bookModel, id);
 
             _logger.LogInformation("Status of book with ID={0} has been changed to status={1}", id, status);
             return NoContent();

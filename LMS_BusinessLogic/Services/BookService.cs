@@ -11,90 +11,62 @@ namespace LMS_BusinessLogic.Services
     {
         private readonly IBookRepository _bookRepository;
         private readonly IMapper _mapper;
-        private readonly IBookCaching _cache;
-        public BookService(IBookRepository bookRepository, IMapper mapper, IBookCaching cache)
+        private readonly ICaching<Book> _cache;
+        public BookService(IBookRepository bookRepository, IMapper mapper, ICaching<Book> cache)
         {
             _bookRepository = bookRepository;
             _mapper = mapper;
             _cache = cache;
         }
-        public async Task<BookModel> CreateBookAsync(BookModel bookModel)
+        public async Task<BookModel> CreateAsync(BookModel bookModel)
         {
             var book = _mapper.Map<Book>(bookModel);
-            var createdBook = await _bookRepository.CreateBookAsync(book);
-            await _cache.DeleteBookAsync(createdBook.Id);
+            var createdBook = await _bookRepository.CreateAsync(book);
+            await _cache.InvalidateCachedCollectionAsync();
             return _mapper.Map<BookModel>(createdBook);
         }
-        public async Task DeleteBookAsync(BookModel bookModel)
+        public async Task DeleteAsync(BookModel bookModel)
         {
             var book = _mapper.Map<Book>(bookModel);
-            await _bookRepository.DeleteBookAsync(book);
-            await _cache.DeleteBookAsync(book.Id);
+            await _bookRepository.DeleteAsync(book);
+            await _cache.InvalidateCacheAsync(book.Id);
+            await _cache.InvalidateCachedCollectionAsync();
         }
-        public async Task<IEnumerable<BookModel>> GetAllBooksAsync(int? year,
-        string? title, string? author, string? genre, BookStatus? status,
-        int? collectionId)
+        public async Task<IEnumerable<BookModel>> GetAllAsync(BookFiltersModel filters)
         {
-            var books = await _cache.GetBooksAsync();
+            var books = await _cache.GetCachedCollectionAsync();
             if (books == null)
             {
-                books = await _bookRepository.GetAllBooksAsync();
-                await _cache.SetBooksAsync(books);
-                if (year >= 0)
-                {
-                    books = books.Where(b => b.Year == year);
-                }
-                if (title != null)
-                {
-                    books = books.Where(b => b.Title.Contains(title, StringComparison.OrdinalIgnoreCase));
-                }
-                if (author != null)
-                {
-                    books = books.Where(b => b.Author.Contains(author, StringComparison.OrdinalIgnoreCase));
-                }
-                if (genre != null)
-                {
-                    books = books.Where(b => b.Genre.Contains(genre, StringComparison.OrdinalIgnoreCase));
-                }
-                if (status != null)
-                {
-                    books = books.Where(b => b.Status == status);
-                }
-                if (collectionId != null)
-                {
-                    books = books.Where(b => b.CollectionId == collectionId);
-                }
+                books = await _bookRepository.GetAllAsync(filters);
+                await _cache.SetCachedCollectionAsync(books);
             }
             var booksModel = _mapper.Map<List<BookModel>>(books);
             return booksModel;
         }
-        public async Task<BookModel> GetBookAsync(int id)
+        public async Task<BookModel> GetAsync(int id)
         {
-            var book = await _cache.GetBookAsync(id);
+            var book = await _cache.GetCacheAsync(id);
             if (book == null)
             {
-                book = await _bookRepository.GetBookAsync(b => b.Id == id, false);
-                await _cache.SetBookAsync(book);
+                book = await _bookRepository.GetAsync(id);
+                await _cache.SetCacheAsync(book);
             }
             return _mapper.Map<BookModel>(book);
         }
-        public async Task<BookModel> UpdateBookAsync(BookModel book, int id)
+        public async Task<BookModel> UpdateAsync(BookModel book, int id)
         {
-            var bookToUpdate = await _cache.GetBookAsync(id);
+            var bookToUpdate = await _cache.GetCacheAsync(id);
             if (bookToUpdate == null)
             {
-                bookToUpdate = await _bookRepository.GetBookAsync(b => b.Id == id, false);
+                bookToUpdate = await _bookRepository.GetAsync(id);
             }
-            bookToUpdate.Title = book.Title;
-            bookToUpdate.Author = book.Author;
-            bookToUpdate.Genre = book.Genre;
-            bookToUpdate.Year = book.Year;
-            bookToUpdate.Status = book.Status;
-            bookToUpdate.CollectionId = book.CollectionId;
+            _mapper.Map(book, bookToUpdate);
+            bookToUpdate.Id = id;
 
-            var updatedBook = await _bookRepository.UpdateBookAsync(bookToUpdate);
-            await _cache.DeleteBookAsync(bookToUpdate.Id);
-            await _cache.SetBookAsync(bookToUpdate);
+            var updatedBook = await _bookRepository.UpdateAsync(bookToUpdate);
+
+            await _cache.InvalidateCacheAsync(bookToUpdate.Id);
+            await _cache.InvalidateCachedCollectionAsync();
             return _mapper.Map<BookModel>(updatedBook);
         }
     }

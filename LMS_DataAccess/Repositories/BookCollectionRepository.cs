@@ -13,33 +13,25 @@ namespace LMS_DataAccess.Repositories
         {
             _dbContext = dbContext;
         }
-        public async Task<BookCollection> CreateBookCollectionAsync(BookCollection bookCollection)
+        public async Task<BookCollection> CreateAsync(BookCollection bookCollection)
         {
             await _dbContext.BookCollections.AddAsync(bookCollection);
             await _dbContext.SaveChangesAsync();
             return bookCollection;
         }
-        public async Task DeleteBookCollectionAsync(BookCollection bookCollection)
+        public async Task DeleteAsync(BookCollection bookCollection)
         {
             _dbContext.BookCollections.Remove(bookCollection);
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<IEnumerable<BookCollection>> GetAllCollectionsAsync()
+        public async Task<IEnumerable<BookCollection>> GetAllAsync()
         {
             return await _dbContext.BookCollections.Include(bc => bc.Books).ToListAsync();
         }
-        public async Task<BookCollection> GetBookCollectionAsync(Expression<Func<BookCollection, bool>> filter, bool isTrackable = false)
+        public async Task<BookCollection> GetAsync(int id)
         {
-            IQueryable<BookCollection> query = _dbContext.BookCollections;
-            if (!isTrackable)
-            {
-                query = query.AsNoTracking();
-            }
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-            return await query.FirstOrDefaultAsync();
+            var bookCollection = await _dbContext.BookCollections.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return bookCollection;
         }
     }
 }
