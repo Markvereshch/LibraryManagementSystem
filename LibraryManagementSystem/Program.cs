@@ -24,8 +24,12 @@ var filesOptions = new Files();
 builder.Configuration.Bind("Files", filesOptions);
 IOptions<Files> files = Options.Create(filesOptions);
 
+var cachingOptions = new CachingOptions();
+builder.Configuration.Bind("CachingOptions", cachingOptions);
+IOptions<CachingOptions> cache = Options.Create(cachingOptions);
+
 builder.Services.AddDbContext(connectionStrings.Value.DefaultSQLConnection);
-builder.Services.AddDistributedSQLCache(connectionStrings.Value.DefaultSQLConnection);
+builder.Services.AddDistributedSQLCache(connectionStrings.Value.DefaultSQLConnection, cache);
 builder.Services.AddAutomapper();
 builder.Services.AddRepositories();
 

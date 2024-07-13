@@ -5,6 +5,6 @@ namespace LMS_BusinessLogic.Interfaces
     public interface IBookCollectionService : IService<BookCollectionModel>
     {
         Task<IEnumerable<BookCollectionModel>> GetAllAsync();
-        Task UpdateAsync(int id);
+        Task<bool> HasUniqueName(string name);
     }
 }

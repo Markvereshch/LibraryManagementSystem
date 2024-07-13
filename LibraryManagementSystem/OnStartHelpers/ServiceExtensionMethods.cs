@@ -10,6 +10,9 @@ using LMS_DataAccess.Interfaces;
 using LMS_DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using LMS_DataAccess.Entities;
+using LMS_BusinessLogic.Caching;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 
 namespace LibraryManagementSystem.ServiceRegistration
 {
@@ -25,6 +28,11 @@ namespace LibraryManagementSystem.ServiceRegistration
             services
                 .AddOptions<ConnectionStrings>()
                 .BindConfiguration("ConnectionStrings")
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            services
+                .AddOptions<CachingOptions>()
+                .BindConfiguration("CachingOptions")
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
         }
@@ -46,7 +54,7 @@ namespace LibraryManagementSystem.ServiceRegistration
                 options.UseSqlServer(connectionString);
             });
         }
-        public static void AddDistributedSQLCache(this IServiceCollection services, string connectionString)
+        public static void AddDistributedSQLCache(this IServiceCollection services, string connectionString, IOptions<CachingOptions> caching)
         {
             services.AddDistributedSqlServerCache(options =>
             {
@@ -54,8 +62,18 @@ namespace LibraryManagementSystem.ServiceRegistration
                 options.SchemaName = "dbo";
                 options.TableName = "LMSCache";
             });
-            services.AddScoped<ICaching<Book>, BookCachingRepository>();
-            services.AddScoped<ICaching<BookCollection>, BookCollectionCachingRepository>();
+            services.AddScoped<ICaching<BookCollection>>(provider =>
+            {
+                var cache = provider.GetRequiredService<IDistributedCache>();
+                var cachePrefix = "BookCollection_";
+                return new CachingRepository<BookCollection>(cache, cachePrefix, caching.Value.CollectionTimespan);
+            });
+            services.AddScoped<ICaching<Book>>(provider =>
+            {
+                var cache = provider.GetRequiredService<IDistributedCache>();
+                var cachePrefix = "Book_";
+                return new CachingRepository<Book>(cache, cachePrefix, caching.Value.BookTimespan);
+            });
         }
         public static void AddAutomapper(this IServiceCollection services)
         {

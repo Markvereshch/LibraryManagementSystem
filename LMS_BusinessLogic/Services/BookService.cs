@@ -69,5 +69,19 @@ namespace LMS_BusinessLogic.Services
             await _cache.InvalidateCachedCollectionAsync();
             return _mapper.Map<BookModel>(updatedBook);
         }
+        public async Task<(BookModel?, ValidationResults, string)> ValidateExistingModel(int id)
+        {
+            if (id <= 0)
+            {
+                return (null, ValidationResults.BadRequest, $"Invalid book ID ({id} is less than 1)");
+            }
+            var book = await GetAsync(id);
+            if (book == null)
+            {
+                return (null, ValidationResults.NotFound, $"Book with ID={id} cannot be found");
+            }
+            var bookModel = _mapper.Map<BookModel>(book);
+            return (bookModel, ValidationResults.OK, "OK");
+        }
     }
 }
