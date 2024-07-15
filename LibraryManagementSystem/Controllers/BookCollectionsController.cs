@@ -46,7 +46,7 @@ namespace LibraryManagementSystem.Controllers
             if (result.OutModel == null)
             {
                 _logger.LogError("ReadBookCollection error: Cannot read the collection with ID={0}: {1}", id, result.Message);
-                return CheckFailedValidation(result.ValidationCode, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "ReadBookCollection error: " + result.Message);
             }
             var collectionDTO = _mapper.Map<BookCollectionDTO>(result.OutModel);
 
@@ -102,7 +102,7 @@ namespace LibraryManagementSystem.Controllers
             if (result.OutModel == null)
             {
                 _logger.LogError("DeleteBookCollection error: Cannot read the collection with ID={0}: {1}", id, result.Message);
-                return CheckFailedValidation(result.ValidationCode, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "DeleteBookCollection error: " + result.Message);
             }
             await _collectionService.DeleteAsync(result.OutModel);
 
@@ -122,7 +122,7 @@ namespace LibraryManagementSystem.Controllers
             if (result.OutModel == null)
             {
                 _logger.LogError("ReadBookCollection error: Cannot read the collection with ID={0}: {1}", id, result.Message);
-                return CheckFailedValidation(result.ValidationCode, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "AssignBookToCollection error: " + result.Message);
             }
             if (bookId <= 0)
             {
@@ -159,7 +159,7 @@ namespace LibraryManagementSystem.Controllers
             if (result.OutModel == null)
             {
                 _logger.LogError("ReadBookCollection error: Cannot read the collection with ID={0}: {1}", id, result.Message);
-                return CheckFailedValidation(result.ValidationCode, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "RemoveBookFromCollection error: " + result.Message);
             }
             if (bookId <= 0)
             {
@@ -195,7 +195,7 @@ namespace LibraryManagementSystem.Controllers
             if (result.OutModel == null)
             {
                 _logger.LogError("ReadBookCollection error: Cannot read the collection with ID={0}: {1}", id, result.Message);
-                return CheckFailedValidation(result.ValidationCode, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "UpdateBookCollection error: " + result.Message);
             }
             result.OutModel.Name = collectionDTO.Name;
             var updatedModel = await _collectionService.UpdateAsync(result.OutModel, id);
