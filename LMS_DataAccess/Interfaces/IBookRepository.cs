@@ -1,14 +1,10 @@
 ﻿using LMS_DataAccess.Entities;
-using System.Linq.Expressions;
+using LMS_Shared;
 
 namespace LMS_DataAccess.Interfaces
 {
-    public interface IBookRepository
+    public interface IBookRepository : IRepository<Book>
     {
-        Task<IEnumerable<Book>> GetAllBooksAsync();
-        Task<Book> GetBookAsync(Expression<Func<Book, bool>> filter = null, bool isTrackable = false);
-        Task<Book> CreateBookAsync(Book book);
-        Task DeleteBookAsync(Book book);
-        Task<Book> UpdateBookAsync(Book book);
+        Task<IEnumerable<Book>> GetAllAsync(BookFiltersModel filters);
     }
 }

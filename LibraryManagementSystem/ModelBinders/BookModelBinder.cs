@@ -1,6 +1,5 @@
 ﻿using LibraryManagementSystem.DTOs;
 using LMS_Shared;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LibraryManagementSystem.ModelBinders

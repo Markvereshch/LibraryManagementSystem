@@ -1,52 +1,43 @@
 ﻿using LMS_DataAccess.Data;
 using LMS_DataAccess.Entities;
 using LMS_DataAccess.Interfaces;
+using LMS_Shared;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace LMS_DataAccess.Repositories
 {
-    public class BookRepository : IBookRepository
+    public class BookRepository : EntityRepository<Book>, IBookRepository
     {
-        private readonly AppDbContext _dbContext;
-        public BookRepository(AppDbContext dbContext)
+        public BookRepository(AppDbContext dbContext) : base(dbContext) { }
+        public async Task<IEnumerable<Book>> GetAllAsync(BookFiltersModel filters)
         {
-            _dbContext = dbContext;
-        }
-        public async Task<Book> CreateBookAsync(Book book)
-        {
-            await _dbContext.Books.AddAsync(book);
-            await _dbContext.SaveChangesAsync();
-            return book;
-        }
-        public async Task DeleteBookAsync(Book book)
-        {
-            _dbContext.Books.Remove(book);
-            await _dbContext.SaveChangesAsync();
-        }
-        public async Task<IEnumerable<Book>> GetAllBooksAsync()
-        {
-            IEnumerable<Book> books = await _dbContext.Books.ToListAsync();
-            return books;
-        }
-        public async Task<Book> GetBookAsync(Expression<Func<Book, bool>> filter = null, bool isTrackable = false)
-        {
-            IQueryable<Book> query = _dbContext.Books;
-            if (!isTrackable)
+            var query = _dbContext.Books.AsQueryable();
+
+            if (filters.Year.HasValue && filters.Year.Value >= 0)
             {
-                query = query.AsNoTracking();
+                query = query.Where(b => b.Year == filters.Year);
             }
-            if (filter != null)
+            if (!string.IsNullOrEmpty(filters.Title))
             {
-                query = query.Where(filter);
+                query = query.Where(b => b.Title.ToLower().Contains(filters.Title.ToLower()));
             }
-            return await query.FirstOrDefaultAsync();
-        }
-        public async Task<Book> UpdateBookAsync(Book book)
-        {
-            _dbContext.Books.Update(book);
-            await _dbContext.SaveChangesAsync();
-            return await _dbContext.Books.FirstOrDefaultAsync(u => u.Id == book.Id);
+            if (!string.IsNullOrEmpty(filters.Author))
+            {
+                query = query.Where(b => b.Author.ToLower().Contains(filters.Author.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(filters.Genre))
+            {
+                query = query.Where(b => b.Genre.ToLower().Contains(filters.Genre.ToLower()));
+            }
+            if (filters.Status.HasValue)
+            {
+                query = query.Where(b => b.Status == filters.Status);
+            }
+            if (filters.CollectionId.HasValue && filters.CollectionId.Value > 0)
+            {
+                query = query.Where(b => b.CollectionId == filters.CollectionId);
+            }
+            return await query.ToListAsync();
         }
     }
 }

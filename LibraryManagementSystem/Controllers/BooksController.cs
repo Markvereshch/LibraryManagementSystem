@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LibraryManagementSystem.DTOs;
 using LibraryManagementSystem.ModelBinders;
+using LMS_BusinessLogic;
 using LMS_BusinessLogic.Interfaces;
 using LMS_BusinessLogic.Models;
 using LMS_Shared;
@@ -26,14 +27,9 @@ namespace LibraryManagementSystem.Controllers
         [HttpGet(Name = "ReadAllBooks")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<BookDTO>>> ReadAllBooks
-        ([FromQuery(Name = "nameFilter")] int? year,
-        [FromQuery(Name = "titleFilter")] string? title,
-        [FromQuery(Name = "authorFilter")] string? author,
-        [FromQuery(Name = "genreFilter")] string? genre,
-        [FromQuery(Name = "bookStatusFilter")] BookStatus? status,
-        [FromQuery(Name = "collectionIdFilter")] int? collectionId)
+        ([FromQuery] BookFiltersModel filters)
         {
-            var booksModel = await _bookService.GetAllBooksAsync(year, title, author, genre, status, collectionId);
+            var booksModel = await _bookService.GetAllAsync(filters);
             var booksDTO = _mapper.Map<List<BookDTO>>(booksModel);
 
             _logger.LogInformation("Reading all books...");
@@ -47,57 +43,53 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BookDTO>> ReadBook(int id)
         {
-            var result = await ValidateBook(id);
-            if (result.Result != null)
+            var result = await _bookService.ValidateExistingModel(id);
+            if (result.OutModel == null)
             {
-                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Result.ToString());
-                return result.Result;
+                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "ReadBook error: " + result.Message);
             }
-            var bookDTO = result.Value;
+            var bookDTO = _mapper.Map<BookDTO>(result.OutModel);
 
             _logger.LogInformation("Reading one book with ID={0}...", id);
             return Ok(bookDTO);
         }
 
-        //Private helper method to validate the book
-        private async Task<ActionResult<BookDTO>> ValidateBook(int id)
+        //Private method, which checks a validation result code
+        private ActionResult CheckFailedValidation(ValidationResults result, string message)
         {
-            if (id <= 0)
+            switch (result)
             {
-                return BadRequest($"Invalid book ID (id={id})");
+                case ValidationResults.BadRequest:
+                    return BadRequest(message);
+                default:
+                    return NotFound(message);
             }
-            var bookModel = await _bookService.GetBookAsync(id);
-            if (bookModel == null)
-            {
-                return NotFound($"Book with ID={id} doesn't exist");
-            }
-            return _mapper.Map<BookDTO>(bookModel);
         }
 
-        //GET method that retrieves the first occurrence of a book with the same author and title using a URL query and not a JSON body.
-        [HttpGet("copies", Name = "ReadFirstCopyWithQuery")]
+        //GET method that retrieves all copies of a book using a URL query and not a JSON body.
+        [HttpGet("copies", Name = "ReadAllCopiesWithQuery")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BookDTO>> ReadFirstCopyWithQuery([ModelBinder(BinderType = typeof(BookModelBinder))] BookDTO bookDTO)
+        public async Task<ActionResult<IEnumerable<BookDTO>>> ReadAllCopiesWithQuery([ModelBinder(BinderType = typeof(BookModelBinder))] BookDTO bookDTO)
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogError("ReadFirstCopyWithQuery error: Invalid BookDTO format in a URL query");
+                _logger.LogError("ReadAllCopiesWithQuery error: Invalid BookDTO format in a URL query");
                 return BadRequest($"Invalid book format");
             }
-            var books = await _bookService.GetAllBooksAsync();
-            var copy = books.FirstOrDefault(c => string.Equals(c.Author, bookDTO.Author, StringComparison.OrdinalIgnoreCase)
-                                            && string.Equals(c.Title, bookDTO.Title, StringComparison.OrdinalIgnoreCase));
-            if (copy == null)
+            var copies = await _bookService.GetAllCopiesAsync(_mapper.Map<BookModel>(bookDTO));
+            if (copies == null)
             {
-                _logger.LogError("ReadFirstCopyWithQuery error: Cannot find the book from the URL query in the library:\nTitle:{0}, Author:{1}, Genre:{2}",
+                _logger.LogError("ReadAllCopiesWithQuery error: Cannot find any book from the URL query in the library:\nTitle:{0}, Author:{1}, Genre:{2}",
                     bookDTO.Title, bookDTO.Author, bookDTO.Genre);
-                return NotFound($"There is no copy of provided book");
+                return NotFound($"There is no copies of provided book");
             }
-            _logger.LogInformation("Found a book from the URL query:\nTitle:{0}, Author:{1}, Genre:{2}",
+            _logger.LogInformation("Found books from the URL query:\nTitle:{0}, Author:{1}, Genre:{2}",
                     bookDTO.Title, bookDTO.Author, bookDTO.Genre);
-            return Ok(copy);
+            var booksDTO = _mapper.Map<List<BookDTO>>(copies);
+            return Ok(booksDTO);
         }
 
         //GET method that checks whether the book is borrowed or not
@@ -107,13 +99,13 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<bool>> IsBorrowed(int id)
         {
-            var result = await ValidateBook(id);
-            if (result.Result != null)
+            var result = await _bookService.ValidateExistingModel(id);
+            if (result.OutModel == null)
             {
-                _logger.LogError("IsBorrowed error: Cannot read the book with ID={0}: {1}", id, result.Result.ToString());
-                return result.Result;
+                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "IsBorrowed error: " + result.Message);
             }
-            var bookDTO = result.Value;
+            var bookDTO = _mapper.Map<BookDTO>(result.OutModel);
             var isBorrowed = bookDTO.Status == BookStatus.Borrowed;
 
             _logger.LogInformation("Book with ID={0} is borrowed: {1}", id, isBorrowed);
@@ -133,7 +125,7 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest(createdBookDTO);
             }
             var bookModel = _mapper.Map<BookModel>(createdBookDTO);
-            var createdModel = await _bookService.CreateBookAsync(bookModel);
+            var createdModel = await _bookService.CreateAsync(bookModel);
             var bookDTO = _mapper.Map<BookDTO>(createdModel);
 
             _logger.LogInformation("Book with ID={0} has been successfully created", bookDTO.Id);
@@ -147,15 +139,13 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var result = await ValidateBook(id);
-            if (result.Result != null)
+            var result = await _bookService.ValidateExistingModel(id);
+            if (result.OutModel == null)
             {
-                _logger.LogError("DeleteBook error: Cannot read the book with ID={0}: {1}", id, result.Result.ToString());
-                return result.Result;
+                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "DeleteBook error: " + result.Message);
             }
-            var bookDTO = result.Value;
-            var bookModel = _mapper.Map<BookModel>(bookDTO);
-            await _bookService.DeleteBookAsync(bookModel);
+            await _bookService.DeleteAsync(result.OutModel);
 
             _logger.LogInformation("Book with ID={0} has been successfully deleted", id);
             return NoContent();
@@ -168,21 +158,20 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BookDTO>> UpdateBook(int id, [FromBody] BookOperationsDTO bookToUpdateDTO)
         {
-            var result = await ValidateBook(id);
-            if (result.Result != null)
+            var result = await _bookService.ValidateExistingModel(id);
+            if (result.OutModel == null)
             {
-                _logger.LogError("UpdateBook error: Cannot read the book with ID={0}: {1}", id, result.Result.ToString());
-                return result.Result;
+                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "UpdateBook error:" + result.Message);
             }
             if (bookToUpdateDTO == null)
             {
                 _logger.LogError("UpdateBook error: Invalid BookOpeationsDTO format");
                 return BadRequest($"Invalid update book format.");
             }
-            var oldBookModel = await _bookService.GetBookAsync(result.Value.Id);
             var newBookModel = _mapper.Map<BookModel>(bookToUpdateDTO);
-            newBookModel.CollectionId = oldBookModel.CollectionId;
-            var updatedModel = await _bookService.UpdateBookAsync(newBookModel, id);
+            newBookModel.CollectionId = result.OutModel.CollectionId;
+            var updatedModel = await _bookService.UpdateAsync(newBookModel, id);
 
             _logger.LogInformation("Book with ID={0} has been successfully updated", id);
             return Ok(_mapper.Map<BookDTO>(updatedModel));
@@ -195,11 +184,11 @@ namespace LibraryManagementSystem.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateBookStatus(int id, [FromBody] BookStatus? status)
         {
-            var result = await ValidateBook(id);
-            if (result.Result != null)
+            var result = await _bookService.ValidateExistingModel(id);
+            if (result.OutModel == null)
             {
-                _logger.LogError("UpdateBookStatus error: Cannot read the book with ID={0}: {1}", id, result.Result.ToString());
-                return result.Result;
+                _logger.LogError("ReadBook error: Cannot read the book with ID={0}: {1}", id, result.Message);
+                return CheckFailedValidation(result.ValidationCode, "UpdateBookStatus error: " + result.Message);
             }
             if (status == null)
             {
@@ -211,10 +200,8 @@ namespace LibraryManagementSystem.Controllers
                 _logger.LogError("UpdateBook error: Invalid status (status={0}", status);
                 return BadRequest($"Status={status} is not a valid book status");
             }
-            var bookDTO = result.Value;
-            bookDTO.Status = (BookStatus)status;
-            var bookModel = _mapper.Map<BookModel>(bookDTO);
-            await _bookService.UpdateBookAsync(bookModel, id);
+            result.OutModel.Status = status.Value;
+            await _bookService.UpdateAsync(result.OutModel, id);
 
             _logger.LogInformation("Status of book with ID={0} has been changed to status={1}", id, status);
             return NoContent();

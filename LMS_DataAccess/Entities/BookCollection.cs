@@ -1,6 +1,8 @@
-﻿namespace LMS_DataAccess.Entities
+﻿using LMS_DataAccess.Interfaces;
+
+namespace LMS_DataAccess.Entities
 {
-    public class BookCollection
+    public class BookCollection : IEntity
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;

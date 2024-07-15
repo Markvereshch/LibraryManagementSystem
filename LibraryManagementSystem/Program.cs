@@ -1,17 +1,7 @@
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using LibraryManagementSystem;
 using LibraryManagementSystem.Configuration;
-using LibraryManagementSystem.FluentValidators;
 using LibraryManagementSystem.Middleware;
-using LibraryManagementSystem.ModelBinders;
-using LMS_BusinessLogic;
-using LMS_BusinessLogic.Interfaces;
-using LMS_BusinessLogic.Services;
-using LMS_DataAccess.Data;
-using LMS_DataAccess.Interfaces;
-using LMS_DataAccess.Repositories;
-using Microsoft.EntityFrameworkCore;
+using LibraryManagementSystem.ServiceRegistration;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,61 +12,31 @@ builder.Services.AddControllers(options =>
     //options.ModelBinderProviders.Insert(0, new BookModelBinderProvider()); //This was a bad idea. This binder blocks JSON reading in methods that work with Book model.
 }).AddNewtonsoftJson();
 
-//Registering application options
-builder.Services
-    .AddOptions<Files>()
-    .BindConfiguration("Files")
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
+// Adding services
+builder.Services.AddAndValidateOptions();
+builder.Services.AddFluentValidators();
 
-builder.Services
-    .AddOptions<ConnectionStrings>()
-    .BindConfiguration("ConnectionStrings")
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
+var dbOptions = new ConnectionStrings();
+builder.Configuration.Bind("ConnectionStrings", dbOptions);
+IOptions<ConnectionStrings> connectionStrings = Options.Create(dbOptions);
 
-//Registering validators
-builder.Services
-    .AddValidatorsFromAssemblyContaining<BookDTOValidator>()
-    .AddValidatorsFromAssemblyContaining<BookOperationsDTOValidator>()
-    .AddValidatorsFromAssemblyContaining<BookCollectionDTOValidator>()
-    .AddValidatorsFromAssemblyContaining<BookCollectionOperationsDTOValidator>();
+var filesOptions = new Files();
+builder.Configuration.Bind("Files", filesOptions);
+IOptions<Files> files = Options.Create(filesOptions);
 
-//Adding FluentValidation
-builder.Services
-    .AddFluentValidationAutoValidation()
-    .AddFluentValidationClientsideAdapters();
+var cachingOptions = new CachingOptions();
+builder.Configuration.Bind("CachingOptions", cachingOptions);
+IOptions<CachingOptions> cache = Options.Create(cachingOptions);
 
-//Connection to the database
-var connectionString = builder.Configuration.GetConnectionString("DefaultSQLConnection");
+builder.Services.AddDbContext(connectionStrings.Value.DefaultSQLConnection);
+builder.Services.AddDistributedSQLCache(connectionStrings.Value.DefaultSQLConnection, cache);
+builder.Services.AddAutomapper();
+builder.Services.AddRepositories();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseSqlServer(connectionString);
-});
-
-//Adding distributed caching
-builder.Services.AddDistributedSqlServerCache(options =>
-{
-    options.ConnectionString = connectionString;
-    options.SchemaName = "dbo";
-    options.TableName = "LMSCache";
-});
-builder.Services.AddScoped<IBookCaching, BookCachingRepository>();
-builder.Services.AddScoped<IBookCollectionCaching, BookCollectionCachingRepository>();
-
-//Automapper
-builder.Services.AddAutoMapper(typeof(BusinessLayerMapper), typeof(PresentationLayerMapper));
-
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-builder.Services.AddScoped<IBookCollectionService, BookCollectionService>();
-builder.Services.AddScoped<IBookCollectionRepository, BookCollectionRepository>();
-
-//Logging
+// Logging
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Warning()
-    .WriteTo.File(builder.Configuration["Files:LoggingFile"], rollingInterval: RollingInterval.Day)
+    .WriteTo.File(files.Value.LoggingFile, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Host.UseSerilog();
 

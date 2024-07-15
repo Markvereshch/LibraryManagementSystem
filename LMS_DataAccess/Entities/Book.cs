@@ -1,8 +1,9 @@
-﻿using LMS_Shared;
+﻿using LMS_DataAccess.Interfaces;
+using LMS_Shared;
 
 namespace LMS_DataAccess.Entities
 {
-    public class Book
+    public class Book : IEntity
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;

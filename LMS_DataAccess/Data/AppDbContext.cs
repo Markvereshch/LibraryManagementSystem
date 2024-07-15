@@ -7,10 +7,7 @@ namespace LMS_DataAccess.Data
     {
         public DbSet<Book> Books { get; set; }
         public DbSet<BookCollection> BookCollections { get; set; }
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

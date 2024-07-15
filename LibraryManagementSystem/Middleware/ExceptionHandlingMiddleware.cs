@@ -18,7 +18,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "WARNING! Unhandler error has occurred");
+                _logger.LogError(ex, "WARNING! Unhandled error has occurred");
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 var details = new
                 {
